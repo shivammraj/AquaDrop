@@ -2,8 +2,10 @@
 export function registerServiceWorker() {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
 
+  const swUrl = `${import.meta.env.BASE_URL}sw.js`
+
   navigator.serviceWorker
-    .register('/sw.js')
+    .register(swUrl)
     .then((registration) => {
       // eslint-disable-next-line no-console
       console.log('Service Worker registered:', registration.scope)

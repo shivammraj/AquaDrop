@@ -3,3 +3,5 @@ dist
 .env
 .DS_Store
 .vscode
+vscode-extension/node_modules
+vscode-extension/out

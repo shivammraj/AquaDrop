@@ -1,160 +1,226 @@
-import { useMemo } from 'react'
-import type { ReminderState } from '../../types/reminder'
+import { useMemo, useState } from 'react'
 
-function formatCountdown(ms: number): string {
-  if (!Number.isFinite(ms) || ms <= 0) return 'Due now'
+const presetOptions = [
+  { label: '30 minutes', value: 30, unit: 'minutes' },
+  { label: '1 hour', value: 1, unit: 'hours' },
+  { label: '2 hours', value: 2, unit: 'hours' }
+] as const
 
-  const totalSeconds = Math.floor(ms / 1000)
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-
-  if (hours > 0) return `${hours}h ${minutes}m`
-  if (minutes > 0) return `${minutes}m ${seconds}s`
-  return `${seconds}s`
+type SettingsProps = {
+  intervalValue: number
+  intervalUnit: 'minutes' | 'hours'
+  snoozeMinutes: number
+  notificationsEnabled: boolean
+  notificationSound: boolean
+  trackingEnabled: boolean
+  servingSize: number
+  theme: 'light' | 'dark' | 'system'
+  onIntervalChange: (value: number, unit: 'minutes' | 'hours') => void
+  onSnoozeChange: (value: number) => void
+  onNotificationsToggle: (value: boolean) => void
+  onNotificationSoundToggle: (value: boolean) => void
+  onTrackingToggle: (value: boolean) => void
+  onServingSizeChange: (value: number) => void
+  onThemeChange: (value: 'light' | 'dark' | 'system') => void
 }
 
-function formatTime(timestamp: number | null): string {
-  if (!timestamp) return 'Not scheduled'
-  return new Date(timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-}
+export default function Settings({
+  intervalValue,
+  intervalUnit,
+  snoozeMinutes,
+  notificationsEnabled,
+  notificationSound,
+  trackingEnabled,
+  servingSize,
+  theme,
+  onIntervalChange,
+  onSnoozeChange,
+  onNotificationsToggle,
+  onNotificationSoundToggle,
+  onTrackingToggle,
+  onServingSizeChange,
+  onThemeChange
+}: SettingsProps) {
+  const [customValue, setCustomValue] = useState(intervalValue)
+  const [customUnit, setCustomUnit] = useState(intervalUnit)
+  const [error, setError] = useState('')
 
-function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleString([], {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit'
-  })
-}
+  const selectedLabel = useMemo(() => {
+    if (intervalValue === 30 && intervalUnit === 'minutes') return '30 minutes'
+    if (intervalValue === 60 && intervalUnit === 'minutes') return '1 hour'
+    if (intervalValue === 120 && intervalUnit === 'minutes') return '2 hours'
+    return `${intervalValue} ${intervalUnit}`
+  }, [intervalValue, intervalUnit])
 
-type DashboardProps = {
-  state: ReminderState
-  countdownMs: number
-  onStart: () => void
-  onPause: () => void
-  onResume: () => void
-  onOpenSettings: () => void
-  onRecordDrink: () => void
-}
+  const applyCustom = () => {
+    const value = Number(customValue)
 
-export default function Dashboard({
-  state,
-  countdownMs,
-  onStart,
-  onPause,
-  onResume,
-  onOpenSettings,
-  onRecordDrink
-}: DashboardProps) {
-  const todayTotal = useMemo(
-    () => state.hydrationHistory.reduce((sum, item) => sum + item.amount, 0),
-    [state.hydrationHistory]
-  )
+    if (!Number.isFinite(value) || value <= 0) {
+      setError('Please enter a positive number.')
+      return
+    }
 
-  const upcomingLabel = state.enabled ? 'Next reminder' : 'Reminder paused'
+    if (customUnit === 'minutes' && value > 1440) {
+      setError('Minutes must be 1440 or less.')
+      return
+    }
+
+    if (customUnit === 'hours' && value > 24) {
+      setError('Hours must be 24 or less.')
+      return
+    }
+
+    setError('')
+    onIntervalChange(value, customUnit)
+  }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.4fr_0.7fr]">
-      <section className="rounded-[28px] border border-border bg-white/85 p-6 shadow-[0_14px_48px_rgba(16,42,86,0.06)] backdrop-blur-sm">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/water-drop-mascot.svg" alt="AquaDrop mascot" className="h-16 w-16 md:h-20 md:w-20" />
-            <div>
-              <p className="text-sm font-medium text-secondaryText">Stay refreshed.</p>
-              <h1 className="text-3xl font-semibold text-primaryText md:text-4xl">Drink water, stay hydrated.</h1>
-              <p className="mt-1 text-sm text-secondaryText">Small sips. Better breaks.</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-ice px-3 py-2">
-            <span className={`h-2.5 w-2.5 rounded-full ${state.enabled ? 'bg-success' : 'bg-warning'}`} />
-            <span className="text-sm font-medium text-primaryText">{state.enabled ? 'Active' : 'Paused'}</span>
-          </div>
+    <div className="rounded-[28px] border border-border bg-white/90 p-6 shadow-[0_14px_48px_rgba(16,42,86,0.06)]">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm text-secondaryText">Reminder setup</p>
+          <h2 className="text-2xl font-semibold text-primaryText">Remind me every</h2>
         </div>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-[1.2fr_1fr]">
-          <div className="rounded-[24px] border border-border bg-gradient-to-br from-sky-50 to-white p-5">
-            <div className="flex items-center justify-between text-sm text-secondaryText">
-              <span>Selected interval</span>
-              <span className="font-medium text-primaryText">{state.intervalValue} {state.intervalUnit}</span>
-            </div>
-
-            <div className="mt-6 flex items-baseline gap-3">
-              <span className="text-3xl font-semibold text-primaryText">{formatCountdown(countdownMs)}</span>
-              <span className="text-sm text-secondaryText">to next reminder</span>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              {state.enabled ? (
-                <button onClick={onPause} className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-primaryText shadow-sm transition hover:bg-slate-50">
-                  Pause reminders
-                </button>
-              ) : (
-                <button onClick={onResume} className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-[0_12px_24px_rgba(22,119,255,0.2)] transition hover:bg-accent">
-                  Start reminders
-                </button>
-              )}
-
-              <button onClick={onOpenSettings} className="rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-primaryText transition hover:bg-slate-50">
-                Settings
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-[24px] border border-border bg-white p-5">
-            <p className="text-sm text-secondaryText">{upcomingLabel}</p>
-            <p className="mt-3 text-2xl font-semibold text-primaryText">{formatTime(state.nextReminder)}</p>
-            <div className="mt-5 space-y-3 text-sm text-secondaryText">
-              <div className="flex items-center justify-between">
-                <span>Sound</span>
-                <span className="font-medium text-primaryText">{state.notificationSound ? 'On' : 'Off'}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Tracking</span>
-                <span className="font-medium text-primaryText">{state.trackingEnabled ? 'On' : 'Off'}</span>
-              </div>
-            </div>
-          </div>
+        <div className="rounded-full border border-border bg-sky-50 px-3 py-1.5 text-sm text-primary font-medium">
+          {selectedLabel}
         </div>
-      </section>
+      </div>
 
-      <aside className="rounded-[28px] border border-border bg-white/85 p-5 shadow-[0_14px_48px_rgba(16,42,86,0.05)]">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-secondaryText">Hydration</p>
-            <h2 className="text-xl font-semibold text-primaryText">Today</h2>
+      <div className="mt-6 grid gap-3 md:grid-cols-4">
+        {presetOptions.map((preset) => {
+          const active = preset.value === intervalValue && preset.unit === intervalUnit
+
+          return (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => onIntervalChange(preset.value, preset.unit)}
+              className={`rounded-2xl border px-4 py-4 text-left transition ${
+                active ? 'border-primary bg-sky-50 shadow-[0_8px_24px_rgba(22,119,255,0.12)]' : 'border-border bg-white hover:bg-slate-50'
+              }`}
+            >
+              <div className="text-base font-medium text-primaryText">{preset.label}</div>
+            </button>
+          )
+        })}
+
+        <div className="rounded-2xl border border-border bg-white p-3">
+          <div className="text-sm text-secondaryText">Custom</div>
+          <div className="mt-3 flex gap-2">
+            <input
+              aria-label="Custom reminder interval value"
+              type="number"
+              min="1"
+              max={customUnit === 'minutes' ? 1440 : 24}
+              value={customValue}
+              onChange={(e) => setCustomValue(Number(e.target.value))}
+              className="w-full rounded-xl border border-border bg-sky-50 px-3 py-2 text-primaryText outline-none focus:border-primary"
+            />
+            <select
+              aria-label="Custom reminder interval unit"
+              value={customUnit}
+              onChange={(e) => setCustomUnit(e.target.value as 'minutes' | 'hours')}
+              className="rounded-xl border border-border bg-white px-3 py-2 text-primaryText outline-none focus:border-primary"
+            >
+              <option value="minutes">Minutes</option>
+              <option value="hours">Hours</option>
+            </select>
           </div>
-          <button onClick={onRecordDrink} className="rounded-lg bg-sky-50 px-3 py-2 text-sm font-medium text-primary">
-            Log water
+          <button
+            type="button"
+            onClick={applyCustom}
+            className="mt-3 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-white transition hover:bg-accent"
+          >
+            Save custom
           </button>
+          {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+        </div>
+      </div>
+
+      <div className="mt-8 grid gap-5 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-ice p-4">
+          <div className="flex items-center justify-between text-sm text-secondaryText">
+            <span>Notifications</span>
+            <button
+              type="button"
+              onClick={() => onNotificationsToggle(!notificationsEnabled)}
+              className={`relative h-7 w-12 rounded-full transition ${notificationsEnabled ? 'bg-primary' : 'bg-slate-300'}`}
+            >
+              <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${notificationsEnabled ? 'left-6' : 'left-1'}`} />
+            </button>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between text-sm text-secondaryText">
+            <span>Notification sound</span>
+            <button
+              type="button"
+              onClick={() => onNotificationSoundToggle(!notificationSound)}
+              className={`relative h-7 w-12 rounded-full transition ${notificationSound ? 'bg-primary' : 'bg-slate-300'}`}
+            >
+              <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${notificationSound ? 'left-6' : 'left-1'}`} />
+            </button>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between text-sm text-secondaryText">
+            <span>Hydration tracking</span>
+            <button
+              type="button"
+              onClick={() => onTrackingToggle(!trackingEnabled)}
+              className={`relative h-7 w-12 rounded-full transition ${trackingEnabled ? 'bg-primary' : 'bg-slate-300'}`}
+            >
+              <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${trackingEnabled ? 'left-6' : 'left-1'}`} />
+            </button>
+          </div>
         </div>
 
-        <div className="mt-5">
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-semibold text-primaryText">{todayTotal} mL</span>
+        <div className="rounded-2xl border border-border bg-ice p-4">
+          <div className="text-sm text-secondaryText">Theme</div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {(['light', 'dark', 'system'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => onThemeChange(mode)}
+                className={`rounded-xl border px-3 py-2 text-sm capitalize transition ${theme === mode ? 'border-primary bg-white text-primary font-medium' : 'border-border bg-white text-primaryText hover:bg-slate-50'}`}
+              >
+                {mode}
+              </button>
+            ))}
           </div>
-          <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-sky-100">
-            <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min((todayTotal / 2000) * 100, 100)}%` }} />
-          </div>
-          <p className="mt-2 text-xs text-secondaryText">{state.servingSize} mL per recorded drink</p>
-        </div>
 
-        <div className="mt-6 space-y-3">
-          {state.hydrationHistory.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-sky-50 p-4 text-sm text-secondaryText">
-              No drinks logged yet.
+          <div className="mt-4">
+            <label className="text-sm text-secondaryText">Snooze duration</label>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                value={snoozeMinutes}
+                onChange={(e) => onSnoozeChange(Number(e.target.value))}
+                className="w-24 rounded-xl border border-border bg-white px-3 py-2 text-primaryText outline-none focus:border-primary"
+              />
+              <span className="text-sm text-secondaryText">minutes</span>
             </div>
-          ) : (
-            state.hydrationHistory.slice(0, 3).map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between rounded-2xl border border-border bg-ice px-3 py-2 text-sm">
-                <span className="font-medium text-primaryText">{entry.amount} mL</span>
-                <span className="text-secondaryText">{formatDate(entry.timestamp)}</span>
-              </div>
-            ))
-          )}
+          </div>
+
+          <div className="mt-4">
+            <label className="text-sm text-secondaryText">Serving size</label>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="number"
+                min="50"
+                value={servingSize}
+                onChange={(e) => onServingSizeChange(Number(e.target.value))}
+                className="w-24 rounded-xl border border-border bg-white px-3 py-2 text-primaryText outline-none focus:border-primary"
+              />
+              <span className="text-sm text-secondaryText">mL</span>
+            </div>
+          </div>
         </div>
-      </aside>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-dashed border-border bg-sky-50 p-4 text-sm text-secondaryText">
+        Browser notifications require HTTPS or localhost, and permission is granted only after explicit user action. If a browser blocks notifications, AquaDrop will keep scheduling reminders locally and show a clear explanation in the interface.
+      </div>
     </div>
   )
 }

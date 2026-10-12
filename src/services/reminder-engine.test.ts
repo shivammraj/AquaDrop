@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ReminderEngine } from './services/reminder-engine'
+import { ReminderEngine } from './reminder-engine'
 
 describe('ReminderEngine', () => {
   it('creates a valid schedule when started', () => {
