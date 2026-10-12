@@ -105,6 +105,32 @@ export default function Dashboard({
                 A small step for a healthier, happier you! 💙
               </p>
 
+              {/* Live Seconds Countdown Timer */}
+              <div className="mt-3.5 flex items-center gap-3 rounded-2xl border border-[#DCE8F7] bg-[#F1F8FF]/80 px-4 py-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-[#1677FF] shadow-sm">
+                  <Clock className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="text-[11px] font-semibold text-[#60738F]">Next break in</div>
+                  <div className="font-mono text-base font-bold tracking-tight text-[#102A56]">
+                    {state.enabled && Number.isFinite(countdownMs) && countdownMs > 0 ? (
+                      (() => {
+                        const totalSecs = Math.floor(countdownMs / 1000)
+                        const h = Math.floor(totalSecs / 3600)
+                        const m = Math.floor((totalSecs % 3600) / 60)
+                        const s = totalSecs % 60
+                        if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+                        return `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+                      })()
+                    ) : state.enabled ? (
+                      'Due now'
+                    ) : (
+                      'Reminders paused'
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-5 flex flex-col gap-2.5">
                 {/* Button 1: I've drunk water */}
                 <button

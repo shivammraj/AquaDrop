@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusText = document.getElementById('statusText')
   const dot = document.getElementById('dot')
   const drinksCount = document.getElementById('drinksCount')
+  const secTimer = document.getElementById('secTimer')
   const toggleBtn = document.getElementById('toggleBtn')
   const logDrinkBtn = document.getElementById('logDrinkBtn')
   const snoozeBtn = document.getElementById('snoozeBtn')
@@ -28,20 +29,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!state) return
     currentState = state
 
-    // Status text & dot
+    // Status text, dot & seconds timer
     if (state.enabled && state.nextReminder) {
       const diffMs = state.nextReminder - Date.now()
       if (diffMs <= 0) {
         statusText.textContent = 'Active · Due now'
+        if (secTimer) secTimer.textContent = '00:00'
       } else {
-        const mins = Math.ceil(diffMs / 60000)
-        statusText.textContent = `Active · Next in ${mins}m`
+        const totalSecs = Math.floor(diffMs / 1000)
+        const h = Math.floor(totalSecs / 3600)
+        const m = Math.floor((totalSecs % 3600) / 60)
+        const s = totalSecs % 60
+        const formatted = h > 0
+          ? `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+          : `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+        statusText.textContent = `Active · ${formatted}`
+
+        if (secTimer) {
+          secTimer.textContent = h > 0
+            ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+            : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+        }
       }
       dot.className = 'dot'
       toggleBtn.textContent = 'Pause Reminders'
       toggleBtn.className = 'btn'
     } else {
       statusText.textContent = 'Paused'
+      if (secTimer) secTimer.textContent = '--:--'
       dot.className = 'dot paused'
       toggleBtn.textContent = 'Start Reminders'
       toggleBtn.className = 'btn btn-primary'
@@ -70,6 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })
   }
+
+  // Live 1-second ticker for smooth seconds countdown
+  setInterval(() => {
+    if (currentState && currentState.enabled && currentState.nextReminder) {
+      render(currentState)
+    }
+  }, 1000)
 
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {

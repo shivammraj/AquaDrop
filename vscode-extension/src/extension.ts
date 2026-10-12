@@ -265,10 +265,12 @@ export function activate(context: vscode.ExtensionContext) {
     updateStatusBar()
   }
 
-  // Live status bar countdown ticker (refresh every 30s)
+  // Live status bar countdown ticker with seconds (refresh every 1s when active)
   const ticker = setInterval(() => {
-    updateStatusBar()
-  }, 30000)
+    if (state.enabled && state.nextReminder) {
+      updateStatusBar()
+    }
+  }, 1000)
 
   context.subscriptions.push({
     dispose: () => {
@@ -299,15 +301,16 @@ function loadState(context: vscode.ExtensionContext): AquaDropState {
 
 function formatCountdown(nextReminder: number): string {
   const diffMs = Math.max(0, nextReminder - Date.now())
-  const totalMinutes = Math.ceil(diffMs / 60000)
-  if (totalMinutes <= 0) {
+  if (diffMs <= 0) {
     return 'Due'
   }
-  if (totalMinutes < 60) {
-    return `${totalMinutes}m`
-  }
+  const totalSeconds = Math.floor(diffMs / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
 
-  const hours = Math.floor(totalMinutes / 60)
-  const minutes = totalMinutes % 60
-  return `${hours}h ${minutes}m`
+  if (hours > 0) {
+    return `${hours}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
+  }
+  return `${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
 }

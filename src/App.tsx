@@ -10,6 +10,8 @@ import { Bell, Sparkles } from 'lucide-react'
 export default function App() {
   const {
     state,
+    countdownMs,
+    nextIn,
     start,
     pause,
     resume,
@@ -29,11 +31,6 @@ export default function App() {
   const [screen, setScreen] = useState<'dashboard' | 'settings'>('dashboard')
   const [intervalModalOpen, setIntervalModalOpen] = useState(false)
   const [manualReminderOpen, setManualReminderOpen] = useState(false)
-
-  const countdownMs = useMemo(() => {
-    if (!state.nextReminder) return Number.POSITIVE_INFINITY
-    return Math.max(0, state.nextReminder - Date.now())
-  }, [state.nextReminder])
 
   useEffect(() => {
     if (typeof document !== 'undefined') {

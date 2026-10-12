@@ -4,20 +4,32 @@ import type { ReminderState } from '../types/reminder'
 
 export function useReminder() {
   const [state, setState] = useState<ReminderState>(() => reminderEngine.getCurrentState())
+  const [countdownMs, setCountdownMs] = useState<number>(() => reminderEngine.getMsToNext())
   const [nextIn, setNextIn] = useState<string>('—')
 
   useEffect(() => {
-    const sync = () => setState(reminderEngine.getCurrentState())
+    const sync = () => {
+      setState(reminderEngine.getCurrentState())
+      setCountdownMs(reminderEngine.getMsToNext())
+    }
     reminderEngine.on('change', sync)
 
     const tick = () => {
       const ms = reminderEngine.getMsToNext()
+      setCountdownMs(ms)
+
       if (!Number.isFinite(ms) || ms <= 0) {
         setNextIn('Due')
       } else {
-        const m = Math.floor(ms / 60000)
-        const s = Math.floor((ms % 60000) / 1000)
-        setNextIn(`${m}m ${s}s`)
+        const totalSecs = Math.floor(ms / 1000)
+        const h = Math.floor(totalSecs / 3600)
+        const m = Math.floor((totalSecs % 3600) / 60)
+        const s = totalSecs % 60
+        if (h > 0) {
+          setNextIn(`${h}h ${m}m ${s}s`)
+        } else {
+          setNextIn(`${m}m ${s}s`)
+        }
       }
     }
 
@@ -32,6 +44,7 @@ export function useReminder() {
 
   return {
     state,
+    countdownMs,
     nextIn,
     start: () => reminderEngine.start(),
     pause: () => reminderEngine.pause(),
