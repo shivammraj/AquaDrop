@@ -1,53 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+### Browser extension (Chrome/Edge) — Load unpacked
 
-:root {
-  color-scheme: light;
-  font-family: Inter, 'Segoe UI', sans-serif;
-  background: #f1f8ff;
-  color: #13294b;
-}
+1. Build the web app first if you want to reuse assets: `npm run build`.
+2. Open `chrome://extensions` (or edge://extensions).
+3. Enable "Developer mode".
+4. Click "Load unpacked" and select the `extension/` directory from this repository.
 
-html[data-theme='dark'] {
-  color-scheme: dark;
-  background: #0c1729;
-  color: #edf7ff;
-}
+Notes:
 
-html[data-theme='dark'] body {
-  background: #0c1729;
-  color: #edf7ff;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #f1f8ff;
-}
-
-button,
-input,
-select {
-  font: inherit;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-@keyframes pop-in {
-  0% {
-    opacity: 0;
-    transform: translateY(16px) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-pop-in {
-  animation: pop-in 180ms ease-out;
-}
+- The extension uses `chrome.alarms` and `chrome.notifications` for scheduling and reminders.
+- The popup is intentionally lightweight and communicates with the background service worker through `chrome.runtime.sendMessage`.
+- Icons in the extension are SVG files placed under `extension/icons/`.
