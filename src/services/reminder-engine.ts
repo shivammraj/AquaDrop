@@ -1,4 +1,5 @@
 import type { ReminderIntervalUnit, ReminderState } from '../types/reminder'
+import { playCelebrationChime, playWaterChime } from './sound'
 
 export const STORAGE_KEY = 'aquadrop.state.v1'
 
@@ -129,6 +130,10 @@ export class ReminderEngine {
     this.state.reminderOpen = true
     this.state.nextReminder = Date.now() + this.intervalMs()
     this.persist()
+
+    if (this.state.notificationSound) {
+      playWaterChime()
+    }
 
     if (
       this.state.notificationsEnabled &&
@@ -292,6 +297,10 @@ export class ReminderEngine {
     this.state.nextReminder = Date.now() + this.intervalMs()
     this.persist()
     this.reschedule()
+
+    if (this.state.notificationSound) {
+      playCelebrationChime()
+    }
   }
 
   deleteHistory(): void {

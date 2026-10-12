@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <!-- Background aura glow -->
+    <radialGradient id="auraCel" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#72D6FF" stop-opacity="0.4"/>
+      <stop offset="70%" stop-color="#38B6FF" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#38B6FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Droplet Body Gradient -->
+    <linearGradient id="bodyGradCel" x1="0.2" y1="0.1" x2="0.8" y2="0.95">
+      <stop offset="0%" stop-color="#8CE4FF"/>
+      <stop offset="25%" stop-color="#4AC4FF"/>
+      <stop offset="65%" stop-color="#1B88F5"/>
+      <stop offset="100%" stop-color="#0B63D6"/>
+    </linearGradient>
+
+    <radialGradient id="causticCel" cx="45%" cy="75%" r="40%">
+      <stop offset="0%" stop-color="#C5F3FF" stop-opacity="0.85"/>
+      <stop offset="40%" stop-color="#6BD5FF" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#1B88F5" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Heart Gradient -->
+    <linearGradient id="heartGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#69D7FF"/>
+      <stop offset="50%" stop-color="#249BFF"/>
+      <stop offset="100%" stop-color="#0E65D9"/>
+    </linearGradient>
+
+    <filter id="softShadowCel" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#0D54B8" flood-opacity="0.32"/>
+    </filter>
+
+    <filter id="heartShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0D54B8" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <circle cx="100" cy="115" r="82" fill="url(#auraCel)"/>
+
+  <!-- FLOATING BLUE HEARTS -->
+  <!-- Top Left Heart -->
+  <g filter="url(#heartShadow)" transform="translate(24, 48) rotate(-18) scale(0.7)">
+    <path d="M16 5 C12 -2, 2 -1, 1 9 C0 17, 10 24, 16 30 C22 24, 32 17, 31 9 C30 -1, 20 -2, 16 5 Z" fill="url(#heartGrad)"/>
+    <ellipse cx="10" cy="7" rx="3" ry="1.8" fill="#FFFFFF" opacity="0.75" transform="rotate(-30 10 7)"/>
+  </g>
+
+  <!-- Top Right Big Heart -->
+  <g filter="url(#heartShadow)" transform="translate(152, 42) rotate(16) scale(0.85)">
+    <path d="M16 5 C12 -2, 2 -1, 1 9 C0 17, 10 24, 16 30 C22 24, 32 17, 31 9 C30 -1, 20 -2, 16 5 Z" fill="url(#heartGrad)"/>
+    <ellipse cx="10" cy="7" rx="3.2" ry="2" fill="#FFFFFF" opacity="0.8" transform="rotate(-30 10 7)"/>
+  </g>
+
+  <!-- Right Medium Heart -->
+  <g filter="url(#heartShadow)" transform="translate(162, 94) rotate(-10) scale(0.6)">
+    <path d="M16 5 C12 -2, 2 -1, 1 9 C0 17, 10 24, 16 30 C22 24, 32 17, 31 9 C30 -1, 20 -2, 16 5 Z" fill="url(#heartGrad)"/>
+    <ellipse cx="10" cy="7" rx="3" ry="1.8" fill="#FFFFFF" opacity="0.7" transform="rotate(-30 10 7)"/>
+  </g>
+
+  <!-- Left Lower Small Heart -->
+  <g filter="url(#heartShadow)" transform="translate(32, 106) rotate(14) scale(0.55)">
+    <path d="M16 5 C12 -2, 2 -1, 1 9 C0 17, 10 24, 16 30 C22 24, 32 17, 31 9 C30 -1, 20 -2, 16 5 Z" fill="url(#heartGrad)"/>
+    <ellipse cx="10" cy="7" rx="2.5" ry="1.5" fill="#FFFFFF" opacity="0.7" transform="rotate(-30 10 7)"/>
+  </g>
+
+  <!-- Main Body -->
+  <g filter="url(#softShadowCel)">
+    <path d="M100 24
+             C106 36, 126 72, 142 98
+             C158 124, 158 152, 140 172
+             C122 192, 78 192, 60 172
+             C42 152, 42 124, 58 98
+             C74 72, 94 36, 100 24 Z"
+          fill="url(#bodyGradCel)"/>
+  </g>
+
+  <!-- Caustic & Highlights -->
+  <ellipse cx="100" cy="154" rx="42" ry="24" fill="url(#causticCel)"/>
+
+  <ellipse cx="80" cy="62" rx="7" ry="18"
+           fill="#FFFFFF" opacity="0.65"
+           transform="rotate(-28 80 62)"/>
+
+  <ellipse cx="73" cy="88" rx="4" ry="7"
+           fill="#FFFFFF" opacity="0.5"
+           transform="rotate(-20 73 88)"/>
+
+  <!-- HAPPY CELEBRATION FACE -->
+  <!-- Left Happy Squint Eye -->
+  <path d="M76 126 C78 119, 88 119, 90 126"
+        stroke="#0A2246" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Right Happy Squint Eye -->
+  <path d="M110 126 C112 119, 122 119, 124 126"
+        stroke="#0A2246" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+
+  <!-- Blush Cheeks -->
+  <ellipse cx="71" cy="132" rx="8" ry="4.5" fill="#FF6B9D" opacity="0.6"/>
+  <ellipse cx="129" cy="132" rx="8" ry="4.5" fill="#FF6B9D" opacity="0.6"/>
+
+  <!-- Big Joyful Open Mouth -->
+  <path d="M93 134 C93 145, 107 145, 107 134 Z"
+        fill="#F85C7F" stroke="#0A2246" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M96 139 C98 136, 102 136, 104 139" fill="#FF8BA7"/>
+</svg>
