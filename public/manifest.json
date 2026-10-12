@@ -1,0 +1,9 @@
+{
+  "short_name": "AquaDrop",
+  "name": "AquaDrop — Drink water, stay hydrated.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F1F8FF",
+  "theme_color": "#1677FF",
+  "icons": []
+}
