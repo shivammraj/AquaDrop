@@ -1,0 +1,77 @@
+{
+  "name": "aquadrop-vscode-extension",
+  "displayName": "AquaDrop",
+  "description": "Hydration reminder extension for VS Code",
+  "version": "0.1.0",
+  "publisher": "shivammraj",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aquadrop.startReminders",
+        "title": "AquaDrop: Start Reminders"
+      },
+      {
+        "command": "aquadrop.pauseReminders",
+        "title": "AquaDrop: Pause Reminders"
+      },
+      {
+        "command": "aquadrop.logWater",
+        "title": "AquaDrop: I've Drunk Water"
+      },
+      {
+        "command": "aquadrop.openSettings",
+        "title": "AquaDrop: Open Settings"
+      }
+    ],
+    "configuration": {
+      "title": "AquaDrop",
+      "properties": {
+        "aquadrop.intervalMinutes": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "maximum": 1440,
+          "description": "Reminder interval in minutes."
+        },
+        "aquadrop.snoozeMinutes": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 180,
+          "description": "How long to snooze a reminder."
+        },
+        "aquadrop.enabledByDefault": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether reminders are enabled when VS Code starts."
+        },
+        "aquadrop.trackHydration": {
+          "type": "boolean",
+          "default": true,
+          "description": "Record water intake entries in the extension state."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.4.5"
+  }
+}
