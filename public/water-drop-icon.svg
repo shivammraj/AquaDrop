@@ -1,0 +1,40 @@
+# AquaDrop
+
+AquaDrop is a premium water reminder app designed for web use with local-first reminders, personal hydration tracking, and a polished dashboard experience.
+
+## Features
+
+- Reminder scheduling for 30 minutes, 1 hour, 2 hours, or a custom interval
+- Active / paused reminder state with countdown UI
+- Browser notification support with graceful fallback handling
+- Local persistence using browser storage
+- Optional hydration tracking with serving-size logging and simple history
+- Responsive, premium dashboard and settings views
+- Installable web app support via manifest
+
+## Quick start
+
+```bash
+npm install
+npm run dev
+```
+
+## Production build
+
+```bash
+npm run build
+```
+
+## Testing
+
+```bash
+npm test -- --run
+```
+
+## Notes
+
+This repository currently implements the core web app experience, including reminder scheduling, settings, local persistence, hydration tracking, and reminder pop-up behavior.
+
+## License
+
+Add your preferred license here when ready.

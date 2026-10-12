@@ -1,137 +1,60 @@
-import { ReminderState } from '../types/reminder'
+import type { ReminderState } from '../types/reminder'
 
-type Listener = () => void
+export const STORAGE_KEY = 'aquadrop.state.v1'
 
-export class ReminderEngine {
-  private state: ReminderState
-  private timer: number | null = null
-  private bc: BroadcastChannel | null = null
-  private listeners = new Set<Listener>()
+export const DEFAULT_REMINDER_STATE: ReminderState = {
+  enabled: false,
+  intervalValue: 30,
+  intervalUnit: 'minutes',
+  nextReminder: null,
+  snoozeMinutes: 10,
+  notificationsEnabled: true,
+  notificationSound: true,
+  trackingEnabled: true,
+  servingSize: 250,
+  hydrationHistory: [],
+  reminderOpen: false,
+  theme: 'system'
+}
 
-  constructor(){
-    this.state = loadState()
-    try{
-      this.bc = new BroadcastChannel('aquadrop')
-      this.bc.onmessage = (ev)=>{
-        if(ev.data?.type === 'state'){
-          this.state = ev.data.state
-          this.emitChange()
-          this.reschedule()
-        }
-      }
-    } catch(e){
-      this.bc = null
-    }
-    this.reschedule()
-  }
+export function sanitizeReminderState(value: Partial<ReminderState> | null | undefined): ReminderState {
+  const base = { ...DEFAULT_REMINDER_STATE }
+  if (!value) return base
 
-  on(event:'change', cb: Listener){ this.listeners.add(cb) }
-  off(event:'change', cb: Listener){ this.listeners.delete(cb) }
-  private emitChange(){ this.listeners.forEach(l=>l()) }
+  const intervalValue = Number(value.intervalValue ?? base.intervalValue)
+  const intervalUnit = value.intervalUnit === 'hours' ? 'hours' : 'minutes'
 
-  loadState(){ return this.state }
-
-  private persist(){
-    saveState(this.state)
-    if(this.bc) this.bc.postMessage({type:'state', state: this.state})
-    this.emitChange()
-  }
-
-  start(){
-    const now = Date.now()
-    const next = now + this.intervalMs()
-    this.state.enabled = true
-    this.state.nextReminder = next
-    this.persist()
-    this.reschedule()
-  }
-
-  pause(){
-    this.state.enabled = false
-    this.state.nextReminder = null
-    this.persist()
-    this.clearTimer()
-  }
-
-  setIntervalValue(val:number, unit:'minutes'|'hours'){
-    if(!(val>0)) throw new Error('Invalid interval')
-    this.state.intervalValue = val
-    this.state.intervalUnit = unit
-    if(this.state.enabled){
-      this.state.nextReminder = Date.now() + this.intervalMs()
-    }
-    this.persist()
-    this.reschedule()
-  }
-
-  snooze(){
-    const now = Date.now()
-    this.state.nextReminder = now + this.state.snoozeMinutes * 60000
-    this.persist()
-    this.reschedule()
-  }
-
-  recordDrink(){
-    // For now, just schedule next
-    this.state.nextReminder = Date.now() + this.intervalMs()
-    this.persist()
-    this.reschedule()
-  }
-
-  getMsToNext(){
-    if(!this.state.nextReminder) return Infinity
-    return Math.max(0, this.state.nextReminder - Date.now())
-  }
-
-  ensureNotificationPermission(){
-    if(!('Notification' in window)) return Promise.resolve(false)
-    if(Notification.permission === 'granted') return Promise.resolve(true)
-    if(Notification.permission === 'denied') return Promise.resolve(false)
-    return Notification.requestPermission().then(p=> p === 'granted')
-  }
-
-  private intervalMs(){
-    return this.state.intervalUnit === 'hours' ? this.state.intervalValue * 3600000 : this.state.intervalValue * 60000
-  }
-
-  private clearTimer(){
-    if(this.timer) { clearTimeout(this.timer); this.timer = null }
-  }
-
-  private reschedule(){
-    this.clearTimer()
-    if(!this.state.enabled || !this.state.nextReminder) return
-    const ms = this.state.nextReminder - Date.now()
-    if(ms <= 0){
-      // due now
-      this.fireReminder()
-      return
-    }
-    this.timer = window.setTimeout(()=> this.fireReminder(), ms)
-  }
-
-  private fireReminder(){
-    // show notification if allowed
-    if(this.state.notificationsEnabled && 'Notification' in window && Notification.permission === 'granted'){
-      try{
-        const n = new Notification('AquaDrop', {
-          body: 'Drink water, stay hydrated.',
-          icon: '/src/assets/water-drop-icon.svg'
-        })
-        n.onclick = ()=>{
-          window.focus()
-          n.close()
-        }
-      } catch(e){
-        console.warn('Notification failed', e)
-      }
-    }
-    // schedule next
-    this.state.nextReminder = Date.now() + this.intervalMs()
-    this.persist()
-    this.reschedule()
+  return {
+    ...base,
+    ...value,
+    intervalValue: Number.isFinite(intervalValue) && intervalValue > 0 ? intervalValue : base.intervalValue,
+    intervalUnit,
+    nextReminder: typeof value.nextReminder === 'number' ? value.nextReminder : null,
+    snoozeMinutes: Number.isFinite(Number(value.snoozeMinutes)) && Number(value.snoozeMinutes) > 0 ? Number(value.snoozeMinutes) : base.snoozeMinutes,
+    notificationsEnabled: Boolean(value.notificationsEnabled ?? base.notificationsEnabled),
+    notificationSound: Boolean(value.notificationSound ?? base.notificationSound),
+    trackingEnabled: Boolean(value.trackingEnabled ?? base.trackingEnabled),
+    servingSize: Number.isFinite(Number(value.servingSize)) && Number(value.servingSize) > 0 ? Number(value.servingSize) : base.servingSize,
+    hydrationHistory: Array.isArray(value.hydrationHistory) ? value.hydrationHistory : base.hydrationHistory,
+    reminderOpen: Boolean(value.reminderOpen ?? base.reminderOpen),
+    theme: value.theme === 'dark' || value.theme === 'light' ? value.theme : 'system'
   }
 }
 
-// local helpers
-import { saveState, loadState } from './storage'
+export function loadReminderState(): ReminderState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return { ...DEFAULT_REMINDER_STATE }
+    return sanitizeReminderState(JSON.parse(raw))
+  } catch {
+    return { ...DEFAULT_REMINDER_STATE }
+  }
+}
+
+export function saveReminderState(state: ReminderState): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch {
+    // Ignore storage failures gracefully.
+  }
+}

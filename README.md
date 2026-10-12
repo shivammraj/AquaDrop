@@ -1,33 +1,53 @@
-# Drink_water
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-This repository has been initialized with the AquaDrop foundation scaffold.
+:root {
+  color-scheme: light;
+  font-family: Inter, 'Segoe UI', sans-serif;
+  background: #f1f8ff;
+  color: #13294b;
+}
 
-What's included:
+html[data-theme='dark'] {
+  color-scheme: dark;
+  background: #0c1729;
+  color: #edf7ff;
+}
 
-- Vite + React + TypeScript project structure
-- Tailwind CSS configuration and base styles
-- A simple, reusable ReminderEngine (browser) that persists state in localStorage and coordinates across tabs using BroadcastChannel
-- Minimal dashboard and settings screens to continue development
-- SVG mascot assets as local fallbacks (replace with high-quality PNGs in src/assets/)
+html[data-theme='dark'] body {
+  background: #0c1729;
+  color: #edf7ff;
+}
 
-Quick start
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f1f8ff;
+}
 
-1. Install dependencies:
+button,
+input,
+select {
+  font: inherit;
+}
 
-   npm install
+img {
+  max-width: 100%;
+  display: block;
+}
 
-2. Run development server:
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
-   npm run dev
-
-3. Build for production:
-
-   npm run build
-
-Notes and next steps
-
-- The current code provides a working foundation (Phase 1). The reminder engine is intentionally simple but structured for tests and reuse.
-- Replace SVG mascot files in src/assets with PNGs (water-drop-mascot.png, water-drop-icon.png, etc.) when available. The app will gracefully use the SVG fallback.
-- Implement additional features per the project MASTER PROMPT: reminder pop-up UI, snooze/record actions, hydration tracking, PWA service worker, browser extension manifest, and VS Code extension project. I'll continue by adding the reminder pop-up UI and unit tests for the engine unless you'd like a different next step.
-
-License: Add a license file when ready.
+.animate-pop-in {
+  animation: pop-in 180ms ease-out;
+}
