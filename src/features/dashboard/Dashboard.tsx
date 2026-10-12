@@ -1,45 +1,117 @@
-type ReminderModalProps = {
-  isOpen: boolean
-  onRecordDrink: () => void
-  onSnooze: () => void
-  onDismiss: () => void
-}
+import { useEffect, useMemo, useState } from 'react'
+import Dashboard from './features/dashboard/Dashboard'
+import Settings from './features/settings/Settings'
+import ReminderModal from './features/reminders/ReminderModal'
+import { useReminder } from './hooks/useReminder'
 
-export default function ReminderModal({ isOpen, onRecordDrink, onSnooze, onDismiss }: ReminderModalProps) {
-  if (!isOpen) return null
+export default function App() {
+  const {
+    state,
+    start,
+    pause,
+    resume,
+    snooze,
+    dismiss,
+    recordDrink,
+    setInterval,
+    setSnoozeMinutes,
+    setNotificationsEnabled,
+    setNotificationSound,
+    setTrackingEnabled,
+    setServingSize,
+    setTheme,
+    ensureNotificationPermission
+  } = useReminder()
+
+  const [screen, setScreen] = useState<'dashboard' | 'settings'>('dashboard')
+
+  const countdownMs = useMemo(() => {
+    if (!state.nextReminder) return Number.POSITIVE_INFINITY
+    return Math.max(0, state.nextReminder - Date.now())
+  }, [state.nextReminder])
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.theme = state.theme
+    }
+  }, [state.theme])
+
+  const handleStart = async () => {
+    if (
+      state.notificationsEnabled &&
+      typeof Notification !== 'undefined' &&
+      Notification.permission === 'default'
+    ) {
+      await ensureNotificationPermission()
+    }
+    start()
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-[28px] border border-primary/10 bg-white/90 p-6 shadow-[0_24px_80px_rgba(22,119,255,0.18)] animate-pop-in">
-        <div className="flex justify-center mb-4">
-          <img src="/water-drop-mascot.svg" alt="AquaDrop mascot" className="h-24 w-24 drop-shadow-[0_12px_24px_rgba(22,119,255,0.25)]" />
+    <div className="min-h-screen bg-ice px-4 py-6 text-primaryText md:px-8">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 pb-6">
+        <div className="flex items-center gap-3">
+          <img src="/water-drop-mascot.svg" alt="AquaDrop logo" className="h-12 w-12" />
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-secondaryText">AquaDrop</p>
+            <h1 className="text-xl font-semibold">Drink water, stay hydrated.</h1>
+          </div>
         </div>
 
-        <h2 className="text-center text-2xl font-semibold text-primaryText">Drink water, stay hydrated.</h2>
-        <p className="mt-2 text-center text-sm text-secondaryText">It&apos;s time for a water break.</p>
-
-        <div className="mt-6 grid gap-3">
+        <nav className="flex gap-2 rounded-full border border-border bg-white/70 p-1.5 shadow-sm backdrop-blur-sm">
           <button
-            type="button"
-            onClick={onRecordDrink}
-            className="rounded-2xl bg-primary px-5 py-3 text-base font-medium text-white shadow-[0_12px_30px_rgba(22,119,255,0.25)] transition hover:-translate-y-0.5 hover:bg-accent active:translate-y-0"
+            onClick={() => setScreen('dashboard')}
+            className={`rounded-full px-4 py-2 text-sm font-medium ${screen === 'dashboard' ? 'bg-primary text-white' : 'text-primaryText'}`}
           >
-            I&apos;ve drunk water
+            Dashboard
           </button>
-
           <button
-            type="button"
-            onClick={onSnooze}
-            className="rounded-2xl border border-border bg-white px-5 py-3 text-base font-medium text-primaryText transition hover:bg-sky-50"
+            onClick={() => setScreen('settings')}
+            className={`rounded-full px-4 py-2 text-sm font-medium ${screen === 'settings' ? 'bg-primary text-white' : 'text-primaryText'}`}
           >
-            Remind me later
+            Settings
           </button>
+        </nav>
+      </header>
 
-          <button type="button" onClick={onDismiss} className="text-sm text-secondaryText underline-offset-4 hover:underline">
-            Dismiss
-          </button>
-        </div>
-      </div>
+      <main className="mx-auto max-w-6xl">
+        {screen === 'dashboard' ? (
+          <Dashboard
+            state={state}
+            countdownMs={countdownMs}
+            onStart={handleStart}
+            onPause={pause}
+            onResume={resume}
+            onOpenSettings={() => setScreen('settings')}
+            onRecordDrink={recordDrink}
+          />
+        ) : (
+          <Settings
+            intervalValue={state.intervalValue}
+            intervalUnit={state.intervalUnit}
+            snoozeMinutes={state.snoozeMinutes}
+            notificationsEnabled={state.notificationsEnabled}
+            notificationSound={state.notificationSound}
+            trackingEnabled={state.trackingEnabled}
+            servingSize={state.servingSize}
+            theme={state.theme}
+            onIntervalChange={setInterval}
+            onSnoozeChange={setSnoozeMinutes}
+            onNotificationsToggle={setNotificationsEnabled}
+            onNotificationSoundToggle={setNotificationSound}
+            onTrackingToggle={setTrackingEnabled}
+            onServingSizeChange={setServingSize}
+            onThemeChange={setTheme}
+          />
+        )}
+      </main>
+
+      <ReminderModal
+        isOpen={state.reminderOpen}
+        onRecordDrink={recordDrink}
+        onSnooze={snooze}
+        onDismiss={dismiss}
+      />
     </div>
   )
 }

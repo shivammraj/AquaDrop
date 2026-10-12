@@ -42,8 +42,10 @@ export function sanitizeReminderState(value: Partial<ReminderState> | null | und
 }
 
 export function loadReminderState(): ReminderState {
+  if (typeof window === 'undefined') return { ...DEFAULT_REMINDER_STATE }
+
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return { ...DEFAULT_REMINDER_STATE }
     return sanitizeReminderState(JSON.parse(raw))
   } catch {
@@ -52,8 +54,10 @@ export function loadReminderState(): ReminderState {
 }
 
 export function saveReminderState(state: ReminderState): void {
+  if (typeof window === 'undefined') return
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch {
     // Ignore storage failures gracefully.
   }
