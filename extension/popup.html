@@ -1,39 +1,217 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AquaDrop</title>
     <style>
-      body { font-family: Inter, system-ui, sans-serif; margin: 12px; width: 320px; }
-      .btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid #DCE8F7; background:#FFFFFF; cursor:pointer }
-      .primary { background:#1677FF; color:white; border-color:transparent }
-      .row { display:flex; gap:8px; align-items:center; margin-top:8px }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #F1F8FF;
+        color: #102A56;
+        width: 320px;
+        padding: 16px;
+      }
+      .card {
+        background: #FFFFFF;
+        border-radius: 20px;
+        border: 1px solid #DCE8F7;
+        padding: 16px;
+        box-shadow: 0 10px 25px rgba(22, 119, 255, 0.08);
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .header img {
+        width: 36px;
+        height: 36px;
+      }
+      .header h1 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #102A56;
+      }
+      .header p {
+        font-size: 11px;
+        color: #60738F;
+        font-weight: 500;
+      }
+      .status-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #F1F8FF;
+        border: 1px solid #DCE8F7;
+        border-radius: 12px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 14px;
+      }
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #24B47E;
+      }
+      .dot.paused {
+        background: #F3A847;
+      }
+      .btn {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid #DCE8F7;
+        background: #FFFFFF;
+        color: #102A56;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .btn:hover {
+        background: #F8FAFC;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #249BFF, #1677FF);
+        color: #FFFFFF;
+        border: none;
+        box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+      }
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #1677FF, #0B63D6);
+        box-shadow: 0 6px 16px rgba(22, 119, 255, 0.4);
+      }
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #60738F;
+        letter-spacing: 0.05em;
+        margin-top: 14px;
+        margin-bottom: 6px;
+      }
+      .presets {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+      .preset-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 10px;
+        border: 1px solid #DCE8F7;
+        background: #FFFFFF;
+        color: #102A56;
+        cursor: pointer;
+      }
+      .preset-btn.active {
+        background: #EBF5FF;
+        border-color: #1677FF;
+        color: #1677FF;
+      }
+      .custom-row {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin-top: 8px;
+      }
+      .custom-input {
+        width: 70px;
+        padding: 6px 8px;
+        border-radius: 10px;
+        border: 1px solid #DCE8F7;
+        font-size: 12px;
+        font-weight: 600;
+        outline: none;
+        color: #102A56;
+      }
+      .custom-select {
+        padding: 6px 8px;
+        border-radius: 10px;
+        border: 1px solid #DCE8F7;
+        font-size: 12px;
+        background: #FFFFFF;
+        color: #102A56;
+        outline: none;
+      }
+      .notification-banner {
+        margin-top: 12px;
+        padding: 8px 10px;
+        background: #EBF5FF;
+        border-radius: 10px;
+        font-size: 11px;
+        color: #1677FF;
+        text-align: center;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
-    <h3>AquaDrop</h3>
-    <div id="status">Loading…</div>
-    <div class="row">
-      <button id="start" class="btn primary">Start</button>
-      <button id="pause" class="btn">Pause</button>
-    </div>
+    <div class="card">
+      <div class="header">
+        <img src="icons/icon-48.png" alt="AquaDrop" />
+        <div>
+          <h1>AquaDrop</h1>
+          <p>Drink water, stay hydrated.</p>
+        </div>
+      </div>
 
-    <div style="margin-top:12px">
-      <label for="interval">Interval</label>
-      <div class="row">
-        <select id="intervalUnit">
-          <option value="minutes">minutes</option>
+      <div class="status-pill">
+        <div class="status-indicator">
+          <span id="dot" class="dot"></span>
+          <span id="statusText">Loading…</span>
+        </div>
+        <span id="drinksCount" style="color: #1677FF;">0 logged</span>
+      </div>
+
+      <button id="toggleBtn" class="btn btn-primary">Start Reminders</button>
+
+      <div class="btn-row">
+        <button id="logDrinkBtn" class="btn">💧 Log Drink</button>
+        <button id="snoozeBtn" class="btn">⏱ Snooze</button>
+      </div>
+
+      <div class="section-label">Reminder Interval</div>
+      <div class="presets">
+        <button id="p30" class="preset-btn">30m</button>
+        <button id="p60" class="preset-btn">1h</button>
+        <button id="p120" class="preset-btn">2h</button>
+      </div>
+
+      <div class="custom-row">
+        <input id="customValue" class="custom-input" type="number" min="1" max="1440" value="30" />
+        <select id="customUnit" class="custom-select">
+          <option value="minutes">mins</option>
           <option value="hours">hours</option>
         </select>
-        <input id="intervalValue" type="number" min="1" value="30" style="width:80px" />
-        <button id="setInterval" class="btn">Set</button>
+        <button id="setCustomBtn" class="preset-btn" style="flex:1;">Set</button>
       </div>
-    </div>
 
-    <div style="margin-top:12px" class="row">
-      <button id="snooze" class="btn">Snooze</button>
-      <button id="log" class="btn">I've drunk water</button>
+      <div id="notice" class="notification-banner" style="display:none;"></div>
     </div>
 
     <script src="popup.js"></script>
