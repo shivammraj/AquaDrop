@@ -1,5 +1,5 @@
-import type { ReminderIntervalUnit, ReminderState } from '../types/reminder'
-import { playCelebrationChime, playWaterChime } from './sound'
+import type { ReminderIntervalUnit, ReminderState, VoiceType } from '../types/reminder'
+import { playCelebrationChime, playReminderSound, playWaterChime } from './sound'
 
 export const STORAGE_KEY = 'aquadrop.state.v1'
 
@@ -8,9 +8,10 @@ export const DEFAULT_REMINDER_STATE: ReminderState = {
   intervalValue: 30,
   intervalUnit: 'minutes',
   nextReminder: null,
-  snoozeMinutes: 10,
+  snoozeMinutes: 5,
   notificationsEnabled: true,
   notificationSound: true,
+  voiceType: 'female',
   trackingEnabled: true,
   servingSize: 250,
   hydrationHistory: [],
@@ -34,6 +35,7 @@ export function sanitizeReminderState(value: Partial<ReminderState> | null | und
     snoozeMinutes: Number.isFinite(Number(value.snoozeMinutes)) && Number(value.snoozeMinutes) > 0 ? Number(value.snoozeMinutes) : base.snoozeMinutes,
     notificationsEnabled: Boolean(value.notificationsEnabled ?? base.notificationsEnabled),
     notificationSound: Boolean(value.notificationSound ?? base.notificationSound),
+    voiceType: value.voiceType === 'male' || value.voiceType === 'chime-only' ? value.voiceType : 'female',
     trackingEnabled: Boolean(value.trackingEnabled ?? base.trackingEnabled),
     servingSize: Number.isFinite(Number(value.servingSize)) && Number(value.servingSize) > 0 ? Number(value.servingSize) : base.servingSize,
     hydrationHistory: Array.isArray(value.hydrationHistory) ? value.hydrationHistory : base.hydrationHistory,
@@ -132,7 +134,7 @@ export class ReminderEngine {
     this.persist()
 
     if (this.state.notificationSound) {
-      playWaterChime()
+      playReminderSound(this.state.voiceType || 'female')
     }
 
     if (
@@ -233,6 +235,11 @@ export class ReminderEngine {
     this.persist()
   }
 
+  setVoiceType(voiceType: VoiceType): void {
+    this.state.voiceType = voiceType === 'male' || voiceType === 'chime-only' ? voiceType : 'female'
+    this.persist()
+  }
+
   start(): void {
     if (this.state.enabled) return
 
@@ -260,10 +267,31 @@ export class ReminderEngine {
   }
 
   snooze(): void {
+    this.snoozeFor(this.state.snoozeMinutes)
+  }
+
+  /**
+   * Postpone or snooze the reminder.
+   * - If the reminder modal is active (or reminder has already passed/expired),
+   *   snoozes for `minutes` starting from NOW so the user is alerted again in X minutes.
+   * - If an upcoming reminder is already counting down in the future (e.g. on the Dashboard),
+   *   delays the schedule by adding `minutes` to the existing next reminder so the timer
+   *   extends rather than jumping down to a shorter duration.
+   */
+  snoozeFor(minutes: number): void {
+    const mins = Math.max(1, Number(minutes) || this.state.snoozeMinutes)
     this.state.enabled = true
+
+    const now = Date.now()
+    if (this.state.reminderOpen || !this.state.nextReminder || this.state.nextReminder <= now) {
+      // Alert is firing now or expired: remind in `mins` from now
+      this.state.nextReminder = now + mins * 60 * 1000
+    } else {
+      // Upcoming reminder in the future: delay by adding `mins` to current schedule
+      this.state.nextReminder = this.state.nextReminder + mins * 60 * 1000
+    }
+
     this.state.reminderOpen = false
-    const base = this.state.nextReminder ?? Date.now()
-    this.state.nextReminder = Math.max(Date.now(), base) + this.state.snoozeMinutes * 60 * 1000
     this.persist()
     this.reschedule()
   }

@@ -4,13 +4,11 @@ import {
   ChevronDown,
   Clock,
   GlassWater,
-  RotateCcw,
   Sparkles,
   Volume2,
-  Sliders,
-  ChevronRight
 } from 'lucide-react'
 import type { ReminderState } from '../../types/reminder'
+import { playReminderSound } from '../../services/sound'
 import mascotUrl from '../../assets/water-drop-mascot.svg'
 import celebrationUrl from '../../assets/water-drop-celebration.svg'
 import CompactDockWidget from './CompactDockWidget'
@@ -27,6 +25,7 @@ type DashboardProps = {
   onRecordDrink: () => void
   onSnooze: (minutes?: number) => void
   onIntervalChange: (value: number, unit: 'minutes' | 'hours') => void
+  onDeleteHistory?: () => void
 }
 
 export default function Dashboard({
@@ -39,7 +38,8 @@ export default function Dashboard({
   onOpenIntervalModal,
   onRecordDrink,
   onSnooze,
-  onIntervalChange
+  onIntervalChange,
+  onDeleteHistory,
 }: DashboardProps) {
   const [showToastPreview, setShowToastPreview] = useState(false)
   const [showSnoozeMenu, setShowSnoozeMenu] = useState(false)
@@ -57,38 +57,89 @@ export default function Dashboard({
 
   // Interval active state check
   const is30m = state.intervalValue === 30 && state.intervalUnit === 'minutes'
-  const is1h = (state.intervalValue === 1 && state.intervalUnit === 'hours') || (state.intervalValue === 60 && state.intervalUnit === 'minutes')
-  const is2h = (state.intervalValue === 2 && state.intervalUnit === 'hours') || (state.intervalValue === 120 && state.intervalUnit === 'minutes')
+  const is1h  = (state.intervalValue === 1  && state.intervalUnit === 'hours') || (state.intervalValue === 60  && state.intervalUnit === 'minutes')
+  const is2h  = (state.intervalValue === 2  && state.intervalUnit === 'hours') || (state.intervalValue === 120 && state.intervalUnit === 'minutes')
+
+  // Format countdown
+  const formatCountdown = (ms: number): string => {
+    if (!Number.isFinite(ms) || ms <= 0) return 'Due now'
+    const totalSecs = Math.floor(ms / 1000)
+    const h = Math.floor(totalSecs / 3600)
+    const m = Math.floor((totalSecs % 3600) / 60)
+    const s = totalSecs % 60
+    if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+    return `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+  }
+
+  const cardStyle = {
+    background: 'var(--color-bg-card)',
+    border: '1px solid var(--color-border-card)',
+    boxShadow: '0 20px 60px var(--color-card-shadow)',
+  }
+
+  const insetStyle = {
+    background: 'var(--color-bg-inset)',
+    border: '1px solid var(--color-border)',
+  }
 
   return (
-    <div className="flex flex-col gap-8 pb-20">
-      {/* Top 3 Cards Grid Matching Mockup Layout */}
+    <div className="flex flex-col gap-8 pb-24">
+      {/* Top 3 Cards Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Card 1: Main Reminder Card (Top Left in Mockup) */}
-        <div className="relative overflow-hidden rounded-[36px] border border-white/80 bg-white/90 p-7 shadow-[0_20px_60px_rgba(22,119,255,0.12)] backdrop-blur-2xl lg:col-span-6">
-          <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-sky-200/35 blur-3xl" />
+        {/* Card 1: Main Reminder Card */}
+        <div
+          className="relative overflow-hidden rounded-[36px] p-7 backdrop-blur-2xl lg:col-span-6"
+          style={cardStyle}
+        >
+          <div
+            className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full blur-3xl"
+            style={{ background: 'var(--color-aura-1)' }}
+          />
 
           {/* Top Status Badge */}
           <div className="flex items-center justify-between pb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#60738F]">
+            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
               Current Reminder
             </span>
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
-                state.enabled
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'bg-amber-50 text-amber-600'
-              }`}
-            >
-              <span className={`h-2 w-2 rounded-full ${state.enabled ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-              {state.enabled ? 'Active' : 'Paused'}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => playReminderSound(state.voiceType || 'female')}
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm transition hover:scale-105 active:scale-95"
+                style={{
+                  background: 'var(--color-bg-card-solid)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-accent)',
+                }}
+                title="Play sound & voice preview"
+              >
+                <Volume2 className="h-3.5 w-3.5" />
+                <span>Play Sound ({state.voiceType === 'male' ? 'Boy' : state.voiceType === 'chime-only' ? 'Chime' : 'Girl'})</span>
+              </button>
+
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+                style={state.enabled
+                  ? { background: 'rgba(36, 180, 126, 0.1)', color: '#15803D' }
+                  : { background: 'rgba(243, 168, 71, 0.1)', color: '#B45309' }
+                }
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: state.enabled ? '#22C55E' : '#F59E0B' }}
+                />
+                {state.enabled ? 'Active' : 'Paused'}
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-6">
-            {/* 3D Mascot */}
+            {/* Mascot */}
             <div className="relative flex-shrink-0">
-              <div className="absolute inset-0 scale-95 rounded-full bg-sky-300/30 blur-xl animate-pulse" />
+              <div
+                className="absolute inset-0 scale-95 rounded-full blur-xl animate-pulse"
+                style={{ background: 'rgba(36, 155, 255, 0.25)' }}
+              />
               <img
                 src={mascotUrl}
                 alt="AquaDrop mascot"
@@ -98,85 +149,111 @@ export default function Dashboard({
 
             {/* Information & Actions */}
             <div className="flex flex-1 flex-col text-center sm:text-left">
-              <h2 className="text-2xl font-bold tracking-tight text-[#102A56]">
+              <h2 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
                 Drink water, stay hydrated.
               </h2>
-              <p className="mt-1 text-sm font-medium text-[#60738F]">
+              <p className="mt-1 text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                 A small step for a healthier, happier you! 💙
               </p>
 
-              {/* Live Seconds Countdown Timer */}
-              <div className="mt-3.5 flex items-center gap-3 rounded-2xl border border-[#DCE8F7] bg-[#F1F8FF]/80 px-4 py-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-[#1677FF] shadow-sm">
+              {/* Live Countdown Timer */}
+              <div className="mt-3.5 flex items-center gap-3 rounded-2xl px-4 py-2.5" style={insetStyle}>
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-xl shadow-sm"
+                  style={{ background: 'var(--color-bg-card-solid)', color: 'var(--color-accent)' }}
+                >
                   <Clock className="h-4 w-4" />
                 </div>
                 <div>
-                  <div className="text-[11px] font-semibold text-[#60738F]">Next break in</div>
-                  <div className="font-mono text-base font-bold tracking-tight text-[#102A56]">
-                    {state.enabled && Number.isFinite(countdownMs) && countdownMs > 0 ? (
-                      (() => {
-                        const totalSecs = Math.floor(countdownMs / 1000)
-                        const h = Math.floor(totalSecs / 3600)
-                        const m = Math.floor((totalSecs % 3600) / 60)
-                        const s = totalSecs % 60
-                        if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
-                        return `${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
-                      })()
-                    ) : state.enabled ? (
-                      'Due now'
-                    ) : (
-                      'Reminders paused'
-                    )}
+                  <div className="text-[11px] font-semibold" style={{ color: 'var(--color-text-secondary)' }}>Next break in</div>
+                  <div className="font-mono text-base font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+                    {state.enabled
+                      ? formatCountdown(countdownMs)
+                      : 'Reminders paused'}
                   </div>
                 </div>
               </div>
 
               <div className="mt-5 flex flex-col gap-2.5">
-                {/* Button 1: I've drunk water */}
+                {/* I've drunk water */}
                 <button
                   type="button"
                   onClick={onRecordDrink}
-                  className="group flex w-full items-center justify-between rounded-2xl bg-gradient-to-r from-[#249BFF] to-[#1677FF] px-4 py-3 text-white shadow-[0_8px_20px_rgba(22,119,255,0.35)] transition-all hover:scale-[1.01] hover:shadow-[0_12px_28px_rgba(22,119,255,0.45)] active:scale-[0.99]"
+                  className="group flex w-full items-center justify-between rounded-2xl px-4 py-3 text-white shadow-[0_8px_20px_rgba(22,119,255,0.35)] transition-all hover:scale-[1.01] hover:shadow-[0_12px_28px_rgba(22,119,255,0.45)] active:scale-[0.99]"
+                  style={{ background: 'linear-gradient(to right, var(--color-accent-bright), var(--color-accent))' }}
                 >
                   <div className="flex items-center gap-2.5">
                     <GlassWater className="h-5 w-5" />
                     <span className="text-sm font-semibold">I&apos;ve drunk water</span>
                   </div>
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#1677FF]">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white" style={{ color: 'var(--color-accent)' }}>
                     <CheckCircle2 className="h-3.5 w-3.5" />
                   </div>
                 </button>
 
-                {/* Button 2: Remind me later */}
-                <div className="relative">
+                {/* Remind me later — with delay drawer */}
+                <div className="w-full">
                   <button
                     type="button"
                     onClick={() => setShowSnoozeMenu(!showSnoozeMenu)}
-                    className="flex w-full items-center justify-between rounded-2xl border border-[#DCE8F7] bg-white/90 px-4 py-2.5 text-[#102A56] shadow-sm transition hover:bg-sky-50/60"
+                    className="flex w-full items-center justify-between rounded-2xl px-4 py-2.5 shadow-sm transition hover:shadow-md"
+                    style={{
+                      background: 'var(--color-bg-card-solid)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text-primary)',
+                    }}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Clock className="h-4 w-4 text-[#60738F]" />
-                      <span className="text-xs font-semibold text-[#102A56]">Remind me later</span>
+                      <Clock className="h-4 w-4" style={{ color: 'var(--color-text-secondary)' }} />
+                      <span className="text-xs font-semibold">Remind me later</span>
                     </div>
-                    <ChevronDown className={`h-4 w-4 text-[#60738F] transition-transform ${showSnoozeMenu ? 'rotate-180' : ''}`} />
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${showSnoozeMenu ? 'rotate-180' : ''}`}
+                      style={{ color: 'var(--color-text-secondary)' }}
+                    />
                   </button>
 
+                  {/* Delay options drawer (rendered in-flow so it never clips inside the card) */}
                   {showSnoozeMenu && (
-                    <div className="absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-xl border border-[#DCE8F7] bg-white p-1 shadow-xl animate-pop-in">
-                      {[5, 10, 15, 30].map((m) => (
-                        <button
-                          key={m}
-                          type="button"
-                          onClick={() => {
-                            setShowSnoozeMenu(false)
-                            onSnooze(m)
-                          }}
-                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-[#102A56] hover:bg-sky-50"
-                        >
-                          <span>In {m} minutes</span>
-                          <span className="text-[10px] text-[#60738F]">Snooze</span>
-                        </button>
-                      ))}
+                    <div
+                      className="mt-2.5 overflow-hidden rounded-2xl p-2 animate-pop-in"
+                      style={{
+                        background: 'var(--color-bg-inset)',
+                        border: '1px solid var(--color-border)',
+                      }}
+                    >
+                      <div className="mb-1.5 px-1 text-[11px] font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+                        Postpone next break by:
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[5, 10, 15, 30].map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => {
+                              setShowSnoozeMenu(false)
+                              onSnooze(m)
+                            }}
+                            className="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition hover:scale-[1.02] active:scale-[0.98]"
+                            style={{
+                              background: 'var(--color-bg-card-solid)',
+                              border: '1px solid var(--color-border)',
+                              color: 'var(--color-text-primary)',
+                            }}
+                          >
+                            <span>+{m} min</span>
+                            <span
+                              className="rounded-full px-1.5 py-0.5 text-[9px] font-bold"
+                              style={{
+                                background: 'rgba(22, 119, 255, 0.12)',
+                                color: 'var(--color-accent)',
+                              }}
+                            >
+                              Delay
+                            </span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -185,131 +262,119 @@ export default function Dashboard({
           </div>
         </div>
 
-        {/* Card 2: Remind me every Quick Card (Top Middle in Mockup) */}
-        <div className="relative overflow-hidden rounded-[36px] border border-white/80 bg-white/90 p-6 shadow-[0_20px_60px_rgba(22,119,255,0.12)] backdrop-blur-2xl lg:col-span-3">
+        {/* Card 2: Remind me every */}
+        <div
+          className="relative overflow-hidden rounded-[36px] p-6 backdrop-blur-2xl lg:col-span-3"
+          style={cardStyle}
+        >
           <div className="flex items-center justify-between pb-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-[#102A56]" />
-              <h3 className="text-sm font-bold text-[#102A56]">Remind me every</h3>
+              <Clock className="h-4 w-4" style={{ color: 'var(--color-text-primary)' }} />
+              <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>Remind me every</h3>
             </div>
             <button
               type="button"
               onClick={onOpenIntervalModal}
-              className="text-xs font-bold text-[#1677FF] hover:underline"
+              className="text-xs font-bold transition hover:underline"
+              style={{ color: 'var(--color-accent)' }}
             >
               Change
             </button>
           </div>
 
           <div className="mt-2 space-y-2">
-            {/* 30 minutes */}
-            <button
-              type="button"
-              onClick={() => onIntervalChange(30, 'minutes')}
-              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition ${
-                is30m
-                  ? 'border-[#249BFF]/60 bg-sky-100/70'
-                  : 'border-[#DCE8F7] bg-white hover:bg-sky-50/50'
-              }`}
-            >
-              <span className="text-xs font-semibold text-[#102A56]">30 minutes</span>
-              <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${is30m ? 'border-[#1677FF]' : 'border-[#DCE8F7]'}`}>
-                {is30m && <div className="h-2 w-2 rounded-full bg-[#1677FF]" />}
-              </div>
-            </button>
+            {[
+              { label: '30 minutes', active: is30m, onClick: () => onIntervalChange(30, 'minutes') },
+              { label: '1 hour',     active: is1h,  onClick: () => onIntervalChange(1, 'hours') },
+              { label: '2 hours',    active: is2h,  onClick: () => onIntervalChange(2, 'hours') },
+            ].map(({ label, active, onClick }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={onClick}
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition"
+                style={active
+                  ? { background: 'var(--color-accent-bg)', border: '1px solid var(--color-accent)', opacity: 1 }
+                  : { background: 'var(--color-bg-card-solid)', border: '1px solid var(--color-border)' }
+                }
+              >
+                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{label}</span>
+                <div
+                  className="flex h-4 w-4 items-center justify-center rounded-full border-2"
+                  style={{ borderColor: active ? 'var(--color-accent)' : 'var(--color-border)' }}
+                >
+                  {active && <div className="h-2 w-2 rounded-full" style={{ background: 'var(--color-accent)' }} />}
+                </div>
+              </button>
+            ))}
 
-            {/* 1 hour */}
-            <button
-              type="button"
-              onClick={() => onIntervalChange(1, 'hours')}
-              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition ${
-                is1h
-                  ? 'border-[#249BFF]/60 bg-sky-100/70'
-                  : 'border-[#DCE8F7] bg-white hover:bg-sky-50/50'
-              }`}
-            >
-              <span className="text-xs font-semibold text-[#102A56]">1 hour</span>
-              <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${is1h ? 'border-[#1677FF]' : 'border-[#DCE8F7]'}`}>
-                {is1h && <div className="h-2 w-2 rounded-full bg-[#1677FF]" />}
-              </div>
-            </button>
-
-            {/* 2 hours */}
-            <button
-              type="button"
-              onClick={() => onIntervalChange(2, 'hours')}
-              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition ${
-                is2h
-                  ? 'border-[#249BFF]/60 bg-sky-100/70'
-                  : 'border-[#DCE8F7] bg-white hover:bg-sky-50/50'
-              }`}
-            >
-              <span className="text-xs font-semibold text-[#102A56]">2 hours</span>
-              <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${is2h ? 'border-[#1677FF]' : 'border-[#DCE8F7]'}`}>
-                {is2h && <div className="h-2 w-2 rounded-full bg-[#1677FF]" />}
-              </div>
-            </button>
-
-            {/* Custom */}
             <button
               type="button"
               onClick={onOpenIntervalModal}
-              className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left transition ${
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition"
+              style={
                 !is30m && !is1h && !is2h
-                  ? 'border-[#249BFF]/60 bg-sky-100/70'
-                  : 'border-[#DCE8F7] bg-white hover:bg-sky-50/50'
-              }`}
+                  ? { background: 'var(--color-accent-bg)', border: '1px solid var(--color-accent)' }
+                  : { background: 'var(--color-bg-card-solid)', border: '1px solid var(--color-border)' }
+              }
             >
-              <span className="text-xs font-semibold text-[#102A56]">
+              <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                 Custom ({state.intervalValue} {state.intervalUnit})
               </span>
-              <ChevronRight className="h-3.5 w-3.5 text-[#60738F]" />
+              <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>→</span>
             </button>
           </div>
 
           <button
             type="button"
             onClick={onOpenIntervalModal}
-            className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#249BFF] to-[#1677FF] py-2.5 text-xs font-bold text-white shadow-sm hover:scale-[1.01]"
+            className="mt-4 w-full rounded-xl py-2.5 text-xs font-bold text-white shadow-sm transition hover:scale-[1.01]"
+            style={{ background: 'linear-gradient(to right, var(--color-accent-bright), var(--color-accent))' }}
           >
             Adjust Schedule
           </button>
         </div>
 
-        {/* Card 3: Great! Keep it up / Daily Intake (Top Right in Mockup) */}
-        <div className="relative overflow-hidden rounded-[36px] border border-white/80 bg-white/90 p-6 shadow-[0_20px_60px_rgba(22,119,255,0.12)] backdrop-blur-2xl lg:col-span-3">
+        {/* Card 3: Daily Intake */}
+        <div
+          className="relative overflow-hidden rounded-[36px] p-6 backdrop-blur-2xl lg:col-span-3"
+          style={cardStyle}
+        >
           <div className="flex flex-col items-center text-center">
-            {/* Mascot with floating blue hearts */}
             <img
               src={celebrationUrl}
               alt="Hydration status"
               className="h-20 w-20 drop-shadow-[0_8px_16px_rgba(22,119,255,0.25)]"
             />
-            <div className="mt-2 text-xl font-bold text-[#102A56]">Great! 💙</div>
-            <div className="text-xs font-medium text-[#60738F]">Keep it up!</div>
+            <div className="mt-2 text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Great! 💙</div>
+            <div className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>Keep it up!</div>
           </div>
 
-          {/* Water Intake Today Box */}
-          <div className="mt-4 rounded-2xl border border-[#DCE8F7] bg-[#F1F8FF]/80 p-3.5">
+          <div className="mt-4 rounded-2xl p-3.5" style={insetStyle}>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm text-primary">
-                <GlassWater className="h-4 w-4 text-[#1677FF]" />
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-lg shadow-sm"
+                style={{ background: 'var(--color-bg-card-solid)', color: 'var(--color-accent)' }}
+              >
+                <GlassWater className="h-4 w-4" />
               </div>
               <div className="text-left">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[#60738F]">
+                <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-secondary)' }}>
                   Water Intake Today
                 </div>
-                <div className="text-xs font-bold text-[#102A56]">
+                <div className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
                   {glasses} / {targetGlasses} glasses ({todayTotal} mL)
                 </div>
               </div>
             </div>
 
-            {/* Progress bar */}
-            <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-[#DCE8F7]">
+            <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full" style={{ background: 'var(--color-border)' }}>
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#249BFF] to-[#1677FF] transition-all duration-700"
-                style={{ width: `${progressPercent}%` }}
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${progressPercent}%`,
+                  background: 'linear-gradient(to right, var(--color-accent-bright), var(--color-accent))',
+                }}
               />
             </div>
           </div>
@@ -317,33 +382,48 @@ export default function Dashboard({
           <button
             type="button"
             onClick={onRecordDrink}
-            className="mt-3.5 w-full rounded-xl border border-[#DCE8F7] bg-white py-2 text-xs font-bold text-[#1677FF] transition hover:bg-sky-50 shadow-sm"
+            className="mt-3.5 w-full rounded-xl py-2 text-xs font-bold transition hover:scale-[1.01] shadow-sm"
+            style={{
+              background: 'var(--color-bg-card-solid)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-accent)',
+            }}
           >
             + Log 1 Glass
           </button>
         </div>
       </div>
 
-      {/* Floating Dark Notification Toast Preview trigger */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-white/60 bg-white/70 p-4 shadow-sm backdrop-blur-md">
+      {/* Banner: Preview dark notification */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-4 rounded-3xl p-4 shadow-sm backdrop-blur-md"
+        style={{
+          background: 'var(--color-bg-nav)',
+          border: '1px solid var(--color-border-card)',
+        }}
+      >
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-50 text-[#1677FF]">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-xl"
+            style={{ background: 'var(--color-accent-bg)', color: 'var(--color-accent)' }}
+          >
             <Sparkles className="h-4 w-4" />
           </div>
-          <span className="text-xs font-semibold text-[#102A56]">
-            Preview modern dark notification banner from mockup
+          <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+            Preview dark notification banner
           </span>
         </div>
         <button
           type="button"
           onClick={() => setShowToastPreview(!showToastPreview)}
-          className="rounded-xl bg-[#102A56] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#1E3A8A]"
+          className="rounded-xl px-4 py-2 text-xs font-bold text-white shadow-sm transition"
+          style={{ background: '#102A56' }}
         >
           {showToastPreview ? 'Hide Banner' : 'Show Banner'}
         </button>
       </div>
 
-      {/* Center-Right Dark Notification Toast (if toggled) */}
+      {/* Dark Notification Toast Preview */}
       {showToastPreview && (
         <div className="flex justify-center sm:justify-end animate-fade-in">
           <DarkNotificationBanner
@@ -355,35 +435,86 @@ export default function Dashboard({
         </div>
       )}
 
-      {/* Recent Logged Water History */}
-      {state.hydrationHistory.length > 0 && (
-        <div className="rounded-[32px] border border-white/80 bg-white/80 p-6 shadow-sm backdrop-blur-md">
-          <h4 className="text-sm font-bold text-[#102A56]">Today&apos;s Hydration Logs</h4>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6">
-            {state.hydrationHistory.slice(0, 6).map((log) => (
+      {/* Today's Hydration Logs — Displays all logged drinks */}
+      <div
+        className="rounded-[32px] p-6 shadow-sm backdrop-blur-md"
+        style={{
+          background: 'var(--color-bg-nav)',
+          border: '1px solid var(--color-border-card)',
+        }}
+      >
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <h4 className="text-sm font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
+              Today&apos;s Hydration Logs
+            </h4>
+            <span
+              className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
+              style={{
+                background: 'rgba(22, 119, 255, 0.1)',
+                color: 'var(--color-accent)',
+              }}
+            >
+              {state.hydrationHistory.length} {state.hydrationHistory.length === 1 ? 'log' : 'logs'} · {todayTotal} mL
+            </span>
+          </div>
+
+          {state.hydrationHistory.length > 0 && onDeleteHistory && (
+            <button
+              type="button"
+              onClick={onDeleteHistory}
+              className="text-[11px] font-semibold transition hover:underline"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {state.hydrationHistory.length > 0 ? (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {state.hydrationHistory.map((log) => (
               <div
                 key={log.id}
-                className="flex items-center gap-2 rounded-xl border border-[#DCE8F7] bg-[#F1F8FF] px-3 py-2 text-xs font-semibold text-[#102A56]"
+                className="flex items-center justify-between gap-1.5 rounded-2xl px-3.5 py-2.5 text-xs font-semibold shadow-sm transition hover:scale-[1.02]"
+                style={insetStyle}
               >
-                <GlassWater className="h-3.5 w-3.5 text-[#1677FF]" />
-                <span>{log.amount} mL</span>
-                <span className="text-[10px] text-[#60738F]">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex h-6 w-6 items-center justify-center rounded-lg"
+                    style={{ background: 'rgba(22, 119, 255, 0.12)', color: 'var(--color-accent)' }}
+                  >
+                    <GlassWater className="h-3.5 w-3.5" />
+                  </div>
+                  <span style={{ color: 'var(--color-text-primary)' }}>{log.amount} mL</span>
+                </div>
+                <span className="text-[10px] font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                   {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div
+            className="flex items-center justify-center gap-2 rounded-2xl py-6 text-xs font-medium"
+            style={insetStyle}
+          >
+            <GlassWater className="h-4 w-4 opacity-50" style={{ color: 'var(--color-accent)' }} />
+            <span style={{ color: 'var(--color-text-secondary)' }}>
+              No water logged yet today. Click &quot;I&apos;ve drunk water&quot; above to record your first glass!
+            </span>
+          </div>
+        )}
+      </div>
 
-      {/* Fixed / Prominent Bottom Center Dock Widget */}
+      {/* Bottom Dock Widget */}
       <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center px-4 pointer-events-none">
         <div className="pointer-events-auto">
           <CompactDockWidget
             enabled={state.enabled}
             countdownMs={countdownMs}
             totalIntervalMs={totalIntervalMs}
-            onToggle={() => (state.enabled ? onPause() : onResume())}
+            onToggle={() => (state.enabled ? onPause() : (state.nextReminder ? onResume() : onStart()))}
             onOpenSettings={onOpenSettings}
             onOpenIntervalModal={onOpenIntervalModal}
           />

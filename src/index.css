@@ -2,52 +2,217 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --space-1: 8px;
+/* ============================================================
+   THEME SYSTEM — CSS custom properties
+   Applied via [data-theme="light"], [data-theme="dark"], and
+   the @media prefers-color-scheme fallback for system mode.
+   ============================================================ */
+
+/* ── Light theme (default) ─────────────────────────────────── */
+:root,
+[data-theme="light"] {
+  --color-bg-page:          #EAF5FF;
+  --color-bg-page-mid:      #F4F9FF;
+  --color-bg-page-end:      #E5F2FF;
+  --color-bg-card:          rgba(255, 255, 255, 0.92);
+  --color-bg-card-solid:    #ffffff;
+  --color-bg-sidebar:       rgba(247, 250, 252, 0.85);
+  --color-bg-inset:         #F1F8FF;
+  --color-bg-input:         #ffffff;
+  --color-bg-hover:         rgba(248, 250, 255, 0.8);
+  --color-bg-nav:           rgba(255, 255, 255, 0.78);
+  --color-bg-dock:          rgba(255, 255, 255, 0.96);
+
+  --color-text-primary:     #102A56;
+  --color-text-secondary:   #60738F;
+  --color-text-muted:       #8BA4C0;
+  --color-text-on-accent:   #ffffff;
+
+  --color-border:           #DCE8F7;
+  --color-border-card:      rgba(255, 255, 255, 0.85);
+  --color-border-input:     #DCE8F7;
+
+  --color-accent:           #1677FF;
+  --color-accent-bright:    #249BFF;
+  --color-accent-bg:        #EBF5FF;
+
+  --color-aura-1:           rgba(188, 238, 255, 0.42);
+  --color-aura-2:           rgba(220, 232, 247, 0.65);
+  --color-aura-3:           rgba(224, 242, 254, 0.55);
+
+  --color-toggle-off:       #cbd5e1;
+  --color-card-shadow:      rgba(22, 119, 255, 0.12);
+  --color-dock-shadow:      rgba(22, 119, 255, 0.18);
+
+  --color-notification-bg:  #1E293B;
+  --color-notification-text: #ffffff;
+  --color-notification-sub:  #bae6fd;
+
+  color-scheme: light;
+}
+
+/* ── Dark theme ─────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --color-bg-page:          #0C1422;
+  --color-bg-page-mid:      #0F1928;
+  --color-bg-page-end:      #091220;
+  --color-bg-card:          rgba(18, 30, 52, 0.95);
+  --color-bg-card-solid:    #121E34;
+  --color-bg-sidebar:       rgba(14, 24, 44, 0.92);
+  --color-bg-inset:         rgba(22, 119, 255, 0.08);
+  --color-bg-input:         #0F1928;
+  --color-bg-hover:         rgba(22, 119, 255, 0.08);
+  --color-bg-nav:           rgba(18, 30, 52, 0.85);
+  --color-bg-dock:          rgba(14, 24, 44, 0.97);
+
+  --color-text-primary:     #E8F0FA;
+  --color-text-secondary:   #8BA4C0;
+  --color-text-muted:       #5C7A9E;
+  --color-text-on-accent:   #ffffff;
+
+  --color-border:           rgba(36, 155, 255, 0.15);
+  --color-border-card:      rgba(36, 155, 255, 0.12);
+  --color-border-input:     rgba(36, 155, 255, 0.2);
+
+  --color-accent:           #3D8EFF;
+  --color-accent-bright:    #60A5FA;
+  --color-accent-bg:        rgba(22, 119, 255, 0.15);
+
+  --color-aura-1:           rgba(22, 119, 255, 0.08);
+  --color-aura-2:           rgba(36, 155, 255, 0.06);
+  --color-aura-3:           rgba(14, 165, 233, 0.07);
+
+  --color-toggle-off:       #2D3F58;
+  --color-card-shadow:      rgba(0, 0, 0, 0.35);
+  --color-dock-shadow:      rgba(0, 0, 0, 0.45);
+
+  --color-notification-bg:  #1E293B;
+  --color-notification-text: #ffffff;
+  --color-notification-sub:  #bae6fd;
+
+  color-scheme: dark;
+}
+
+/* ── System preference fallback (only active when data-theme="system") ── */
+[data-theme="system"] {
+  /* Inherit light by default — JS listener overrides for dark */
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --color-bg-page:          #0C1422;
+    --color-bg-page-mid:      #0F1928;
+    --color-bg-page-end:      #091220;
+    --color-bg-card:          rgba(18, 30, 52, 0.95);
+    --color-bg-card-solid:    #121E34;
+    --color-bg-sidebar:       rgba(14, 24, 44, 0.92);
+    --color-bg-inset:         rgba(22, 119, 255, 0.08);
+    --color-bg-input:         #0F1928;
+    --color-bg-hover:         rgba(22, 119, 255, 0.08);
+    --color-bg-nav:           rgba(18, 30, 52, 0.85);
+    --color-bg-dock:          rgba(14, 24, 44, 0.97);
+
+    --color-text-primary:     #E8F0FA;
+    --color-text-secondary:   #8BA4C0;
+    --color-text-muted:       #5C7A9E;
+    --color-text-on-accent:   #ffffff;
+
+    --color-border:           rgba(36, 155, 255, 0.15);
+    --color-border-card:      rgba(36, 155, 255, 0.12);
+    --color-border-input:     rgba(36, 155, 255, 0.2);
+
+    --color-accent:           #3D8EFF;
+    --color-accent-bright:    #60A5FA;
+    --color-accent-bg:        rgba(22, 119, 255, 0.15);
+
+    --color-aura-1:           rgba(22, 119, 255, 0.08);
+    --color-aura-2:           rgba(36, 155, 255, 0.06);
+    --color-aura-3:           rgba(14, 165, 233, 0.07);
+
+    --color-toggle-off:       #2D3F58;
+    --color-card-shadow:      rgba(0, 0, 0, 0.35);
+    --color-dock-shadow:      rgba(0, 0, 0, 0.45);
+
+    --color-notification-bg:  #1E293B;
+    --color-notification-text: #ffffff;
+    --color-notification-sub:  #bae6fd;
+
+    color-scheme: dark;
+  }
+}
+
+/* ── Base ────────────────────────────────────────────────────── */
+html {
+  /* Prevent flash: apply theme immediately from localStorage if possible.
+     The inline script in index.html handles this before React loads. */
 }
 
 body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* ── Animations ──────────────────────────────────────────────── */
 @keyframes popIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.94) translateY(6px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  0%   { opacity: 0; transform: scale(0.94) translateY(6px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @keyframes bounceGentle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
 }
 
-.animate-pop-in {
-  animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.18s ease-out forwards;
+.animate-pop-in       { animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-fade-in      { animation: fadeIn 0.18s ease-out forwards; }
+.animate-bounce-gentle { animation: bounceGentle 2s ease-in-out infinite; }
+
+/* ── Theme-aware utility shorthands ─────────────────────────── */
+.bg-theme-page   { background-color: var(--color-bg-page); }
+.bg-theme-card   { background-color: var(--color-bg-card); }
+.bg-theme-inset  { background-color: var(--color-bg-inset); }
+.bg-theme-input  { background-color: var(--color-bg-input); }
+.bg-theme-nav    { background-color: var(--color-bg-nav); }
+.bg-theme-sidebar { background-color: var(--color-bg-sidebar); }
+.text-theme-primary   { color: var(--color-text-primary); }
+.text-theme-secondary { color: var(--color-text-secondary); }
+.border-theme  { border-color: var(--color-border); }
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }
 
-.animate-bounce-gentle {
-  animation: bounceGentle 2s ease-in-out infinite;
+/* Inputs */
+input[type="number"],
+input[type="text"],
+select {
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-input);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

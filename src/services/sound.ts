@@ -82,3 +82,66 @@ export function playCelebrationChime() {
     // Ignore audio playback error
   }
 }
+
+/**
+ * Speaks a hydration reminder using the browser's Web Speech API.
+ * Supports 'female' (girl) and 'male' (boy) voice personas.
+ */
+export function speakReminder(
+  voiceType: 'female' | 'male' = 'female',
+  customPhrase?: string
+): void {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+
+  try {
+    window.speechSynthesis.cancel()
+
+    const phrase = customPhrase || 'Drink water, stay hydrated, and continue your work!'
+    const utterance = new SpeechSynthesisUtterance(phrase)
+    utterance.rate = 0.95 // Clear, natural pace
+
+    const voices = window.speechSynthesis.getVoices()
+    const englishVoices = voices.filter((v) => v.lang.startsWith('en'))
+
+    if (voiceType === 'female') {
+      const femaleVoice =
+        englishVoices.find((v) =>
+          /zira|jenny|samantha|victoria|karen|susan|female|fiona|moira|tessa/i.test(v.name)
+        ) ||
+        englishVoices[0] ||
+        voices[0]
+
+      if (femaleVoice) utterance.voice = femaleVoice
+      utterance.pitch = 1.15 // Friendly, warm female tone
+    } else {
+      const maleVoice =
+        englishVoices.find((v) =>
+          /david|guy|mark|alex|daniel|george|male|oliver|arthur|rishi/i.test(v.name)
+        ) ||
+        englishVoices.find(
+          (v) =>
+            !/zira|jenny|samantha|victoria|karen|susan|female|fiona|moira|tessa/i.test(v.name)
+        ) ||
+        voices[0]
+
+      if (maleVoice) utterance.voice = maleVoice
+      utterance.pitch = 0.85 // Encouraging, confident male tone
+    }
+
+    window.speechSynthesis.speak(utterance)
+  } catch {
+    // Ignore speech errors or restrictions
+  }
+}
+
+/**
+ * Plays the pleasant water chime, followed by the spoken voice reminder.
+ */
+export function playReminderSound(voiceType: 'female' | 'male' | 'chime-only' = 'female'): void {
+  playWaterChime()
+  if (voiceType !== 'chime-only') {
+    setTimeout(() => {
+      speakReminder(voiceType)
+    }, 280)
+  }
+}

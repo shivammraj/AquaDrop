@@ -39,7 +39,7 @@ describe('ReminderEngine', () => {
     expect(() => engine.setSnoozeMinutes(0)).toThrow()
   })
 
-  it('snoozes once and keeps a single active schedule', () => {
+  it('delays an upcoming reminder further into the future', () => {
     const engine = new ReminderEngine()
     engine.setInterval(30, 'minutes')
     engine.start()
@@ -49,5 +49,40 @@ describe('ReminderEngine', () => {
     expect(before).not.toBeNull()
     expect(after).not.toBeNull()
     expect(after).toBeGreaterThan(before as number)
+    expect(engine.getCurrentState().enabled).toBe(true)
+    expect(engine.getCurrentState().reminderOpen).toBe(false)
+  })
+
+  it('snoozes an active reminder for snooze duration from now', () => {
+    const engine = new ReminderEngine()
+    engine.setInterval(30, 'minutes')
+    engine.start()
+    // Simulate reminder trigger open
+    ;(engine as any).state.reminderOpen = true
+    engine.snooze()
+    const after = engine.getCurrentState().nextReminder
+    expect(after).not.toBeNull()
+    expect(after).toBeGreaterThan(Date.now() - 100)
+    expect(after).toBeLessThanOrEqual(Date.now() + 5 * 60 * 1000 + 1000)
+    expect(engine.getCurrentState().reminderOpen).toBe(false)
+  })
+
+  it('delays an upcoming reminder by an explicit number of minutes', () => {
+    const engine = new ReminderEngine()
+    engine.setInterval(30, 'minutes')
+    engine.start()
+    const before = engine.getCurrentState().nextReminder!
+    engine.snoozeFor(15)
+    const after = engine.getCurrentState().nextReminder!
+    expect(after).toBe(before + 15 * 60 * 1000)
+  })
+
+  it('updates voice type correctly', () => {
+    const engine = new ReminderEngine()
+    expect(engine.getCurrentState().voiceType).toBe('female')
+    engine.setVoiceType('male')
+    expect(engine.getCurrentState().voiceType).toBe('male')
+    engine.setVoiceType('chime-only')
+    expect(engine.getCurrentState().voiceType).toBe('chime-only')
   })
 })

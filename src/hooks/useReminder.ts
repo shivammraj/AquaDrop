@@ -51,17 +51,21 @@ export function useReminder() {
     resume: () => reminderEngine.resume(),
     toggle: () => (reminderEngine.getCurrentState().enabled ? reminderEngine.pause() : reminderEngine.start()),
     snooze: () => reminderEngine.snooze(),
+    snoozeFor: (minutes: number) => reminderEngine.snoozeFor(minutes),
     dismiss: () => reminderEngine.dismiss(),
     recordDrink: () => reminderEngine.recordDrink(),
     setInterval: (value: number, unit: ReminderState['intervalUnit']) => reminderEngine.setInterval(value, unit),
     setSnoozeMinutes: (value: number) => reminderEngine.setSnoozeMinutes(value),
     setNotificationsEnabled: (value: boolean) => reminderEngine.setNotificationsEnabled(value),
     setNotificationSound: (value: boolean) => reminderEngine.setNotificationSound(value),
+    setVoiceType: (value: ReminderState['voiceType']) => reminderEngine.setVoiceType(value),
     setTrackingEnabled: (value: boolean) => reminderEngine.setTrackingEnabled(value),
     setServingSize: (value: number) => reminderEngine.setServingSize(value),
     setTheme: (value: ReminderState['theme']) => reminderEngine.setTheme(value),
     ensureNotificationPermission: () => reminderEngine.ensureNotificationPermission(),
     ensurePermission: () => reminderEngine.ensureNotificationPermission(),
-    getMsToNext: () => reminderEngine.getMsToNext()
+    getMsToNext: () => reminderEngine.getMsToNext(),
+    deleteHistory: () => reminderEngine.deleteHistory(),
+    deleteHistoryEntry: () => reminderEngine.deleteHistoryEntry()
   }
 }

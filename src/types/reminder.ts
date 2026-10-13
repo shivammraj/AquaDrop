@@ -1,5 +1,6 @@
 export type ReminderIntervalUnit = 'minutes' | 'hours'
 export type ThemeMode = 'light' | 'dark' | 'system'
+export type VoiceType = 'female' | 'male' | 'chime-only'
 
 export type HydrationEntry = {
   id: number
@@ -15,9 +16,11 @@ export interface ReminderState {
   snoozeMinutes: number
   notificationsEnabled: boolean
   notificationSound: boolean
+  voiceType: VoiceType
   trackingEnabled: boolean
   servingSize: number
   hydrationHistory: HydrationEntry[]
   reminderOpen: boolean
   theme: ThemeMode
 }
+
