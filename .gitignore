@@ -2,7 +2,9 @@ node_modules
 dist
 .env
 .DS_Store
-.vscode
+# Allow .vscode project config (extensions, launch) but ignore personal settings
+.vscode/settings.json
+.vscode/*.code-snippets
 vscode-extension/node_modules
 vscode-extension/out
 .strixonomy

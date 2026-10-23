@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "naumovs.color-highlight",
+    "PKief.material-icon-theme",
+    "GitHub.vscode-pull-request-github",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}
