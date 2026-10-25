@@ -1,6 +1,6 @@
 {
-  "short_name": "AquaDrop",
-  "name": "AquaDrop — Drink water, stay hydrated.",
+  "short_name": "DrinkWater",
+  "name": "Drink Water — Reminder & Hydration Tracker",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F1F8FF",

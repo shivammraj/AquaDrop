@@ -2,9 +2,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run Drink Water Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode-extension"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/vscode-extension/out/**/*.js"
+      ],
+      "preLaunchTask": "Compile VS Code Extension"
+    },
+    {
       "type": "chrome",
       "request": "launch",
-      "name": "Launch AquaDrop in Chrome",
+      "name": "Launch Drink Water Web in Chrome",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/src",
       "preLaunchTask": "npm: dev"
@@ -12,7 +24,7 @@
     {
       "type": "msedge",
       "request": "launch",
-      "name": "Launch AquaDrop in Edge",
+      "name": "Launch Drink Water Web in Edge",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/src",
       "preLaunchTask": "npm: dev"

@@ -34,7 +34,7 @@ export default function DarkNotificationBanner({
 
       <div className="flex items-center gap-3.5 pr-6">
         <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-sky-900/40 p-1">
-          <img src={mascotUrl} alt="AquaDrop" className="h-9 w-9 drop-shadow-sm" />
+          <img src={mascotUrl} alt="Drink Water" className="h-9 w-9 drop-shadow-sm" />
         </div>
         <div>
           <div className="text-sm font-bold text-white">Drink water, stay hydrated.</div>

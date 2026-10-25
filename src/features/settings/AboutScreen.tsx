@@ -28,14 +28,14 @@ export default function AboutScreen() {
             />
             <img
               src={mascotUrl}
-              alt="AquaDrop mascot"
+              alt="Drink Water mascot"
               className="relative h-24 w-24 drop-shadow-[0_12px_24px_rgba(22,119,255,0.28)]"
             />
           </div>
 
           <div>
             <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
-              AquaDrop
+              Drink Water
             </h1>
             <p
               className="mt-2 text-sm font-medium leading-relaxed max-w-sm mx-auto"
@@ -78,7 +78,7 @@ export default function AboutScreen() {
         <div className="grid gap-4 sm:grid-cols-2">
           {/* What it does */}
           <div className="rounded-2xl p-5" style={insetStyle}>
-            <h3 className="text-sm font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>What AquaDrop does</h3>
+            <h3 className="text-sm font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>What Drink Water does</h3>
             <ul className="space-y-1.5 text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
               <li>⏰ Sends gentle water reminders at your chosen interval</li>
               <li>💧 Tracks your daily water intake in glasses</li>
@@ -92,7 +92,7 @@ export default function AboutScreen() {
           <div className="rounded-2xl p-5" style={insetStyle}>
             <h3 className="text-sm font-bold mb-2" style={{ color: 'var(--color-text-primary)' }}>Privacy</h3>
             <p className="text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
-              AquaDrop stores all data locally in your browser using <code className="font-mono text-[10px] px-1 py-0.5 rounded" style={{ background: 'var(--color-bg-card-solid)' }}>localStorage</code>.
+              Drink Water stores all data locally in your browser using <code className="font-mono text-[10px] px-1 py-0.5 rounded" style={{ background: 'var(--color-bg-card-solid)' }}>localStorage</code>.
               No data is ever sent to a server.
               No analytics, no tracking, no accounts required.
               Clearing your browser data will reset all settings.
@@ -106,7 +106,7 @@ export default function AboutScreen() {
           style={{ background: 'var(--color-bg-inset)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}
         >
           <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>Platform note: </span>
-          As a browser-based web app, AquaDrop can reliably deliver reminders and notifications while your browser tab is open or in the background.
+          As a browser-based web app, Drink Water can reliably deliver reminders and notifications while your browser tab is open or in the background.
           Reminders cannot be delivered after the browser is completely closed.
           For persistent system-level reminders, a native OS app or browser extension is required.
         </div>

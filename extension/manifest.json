@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AquaDrop",
-  "description": "Drink water, stay hydrated.",
+  "name": "Drink Water — Reminder & Tracker",
+  "short_name": "DrinkWater",
+  "description": "Drink water, stay hydrated. Simple and gentle reminder for your daily workflow.",
   "version": "0.1.0",
   "action": {
     "default_popup": "popup.html",

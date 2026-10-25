@@ -1,5 +1,5 @@
-# AquaDrop 💧
-> **Drink water, stay hydrated.** A lightweight, premium hydration reminder and daily intake tracking app — available as a Web App (PWA), Chrome/Edge Browser Extension, and VS Code Extension.
+# Drink Water 💧 (DrinkWater Reminder)
+> **Drink water, stay hydrated.** An easy-to-use, premium hydration reminder and daily water tracker — available as a Web App (PWA), Chrome/Edge Browser Extension, and VS Code Extension.
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://aqua-drop-seven.vercel.app/)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-AquaDrop-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/shivammraj/AquaDrop)

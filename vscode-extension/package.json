@@ -1,9 +1,21 @@
 {
   "name": "aquadrop",
-  "displayName": "AquaDrop — Hydration Reminder",
-  "description": "A premium hydration reminder for developers working in VS Code.",
-  "version": "0.1.0",
-  "publisher": "Shivammavi",
+  "displayName": "Drink Water - Hydration Reminder",
+  "description": "Drink Water reminders & daily hydration tracker for developers working in Visual Studio Code.",
+  "version": "0.1.1",
+  "publisher": "shivammavi",
+  "author": {
+    "name": "Shivam Mavi"
+  },
+  "license": "MIT",
+  "homepage": "https://aqua-drop-seven.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shivammraj/AquaDrop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shivammraj/AquaDrop/issues"
+  },
   "icon": "media/aquadrop-icon.png",
   "engines": {
     "vscode": "^1.90.0"
@@ -12,15 +24,21 @@
     "Other",
     "Education"
   ],
+  "keywords": [
+    "drink water",
+    "water reminder",
+    "drink water reminder",
+    "hydration",
+    "health",
+    "water",
+    "reminder",
+    "wellness",
+    "break",
+    "timer",
+    "productivity"
+  ],
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:aquadrop.openDashboard",
-    "onCommand:aquadrop.drinkWater",
-    "onCommand:aquadrop.snoozeReminder",
-    "onCommand:aquadrop.pauseReminders",
-    "onCommand:aquadrop.resumeReminders",
-    "onCommand:aquadrop.toggleReminders",
-    "onCommand:aquadrop.resetDailyProgress"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -28,7 +46,7 @@
       "activitybar": [
         {
           "id": "aquadrop",
-          "title": "AquaDrop",
+          "title": "Drink Water",
           "icon": "media/aquadrop-icon.svg"
         }
       ]
@@ -38,63 +56,94 @@
         {
           "type": "webview",
           "id": "aquadrop.sidebar",
-          "name": "AquaDrop"
+          "name": "Drink Water"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "aquadrop.drinkWater",
+          "when": "view == aquadrop.sidebar",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aquadrop.openDashboard",
+          "when": "view == aquadrop.sidebar",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aquadrop.openSettings",
+          "when": "view == aquadrop.sidebar",
+          "group": "navigation@3"
         }
       ]
     },
     "commands": [
       {
         "command": "aquadrop.openDashboard",
-        "title": "AquaDrop: Open Dashboard"
+        "title": "Drink Water: Open Dashboard",
+        "icon": "$(dashboard)"
       },
       {
         "command": "aquadrop.drinkWater",
-        "title": "AquaDrop: Drink Water"
+        "title": "Drink Water: Log Water (I've Drunk Water)",
+        "icon": "$(heart)"
       },
       {
         "command": "aquadrop.snoozeReminder",
-        "title": "AquaDrop: Snooze Reminder"
+        "title": "Drink Water: Snooze Reminder",
+        "icon": "$(watch)"
       },
       {
         "command": "aquadrop.pauseReminders",
-        "title": "AquaDrop: Pause Reminders"
+        "title": "Drink Water: Pause Reminders",
+        "icon": "$(debug-pause)"
       },
       {
         "command": "aquadrop.resumeReminders",
-        "title": "AquaDrop: Resume Reminders"
+        "title": "Drink Water: Resume Reminders",
+        "icon": "$(play)"
       },
       {
         "command": "aquadrop.toggleReminders",
-        "title": "AquaDrop: Toggle Reminders"
+        "title": "Drink Water: Toggle Reminders"
       },
       {
         "command": "aquadrop.resetDailyProgress",
-        "title": "AquaDrop: Reset Daily Progress"
+        "title": "Drink Water: Reset Daily Progress",
+        "icon": "$(discard)"
       },
       {
         "command": "aquadrop.startReminders",
-        "title": "AquaDrop: Start Reminders"
+        "title": "Drink Water: Start Reminders"
       },
       {
         "command": "aquadrop.logWater",
-        "title": "AquaDrop: Log Water"
+        "title": "Drink Water: Log Water"
       },
       {
         "command": "aquadrop.changeInterval",
-        "title": "AquaDrop: Change Reminder Interval"
+        "title": "Drink Water: Change Reminder Interval"
+      },
+      {
+        "command": "aquadrop.testSound",
+        "title": "Drink Water: Test Reminder Sound",
+        "icon": "$(unmute)"
       },
       {
         "command": "aquadrop.openSettings",
-        "title": "AquaDrop: Open Settings"
+        "title": "Drink Water: Open Settings",
+        "icon": "$(gear)"
       }
     ],
     "configuration": {
-      "title": "AquaDrop",
+      "title": "Drink Water",
       "properties": {
         "aquadrop.remindersEnabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable or disable AquaDrop reminders."
+          "description": "Enable or disable automatic hydration reminders."
         },
         "aquadrop.intervalMinutes": {
           "type": "number",
@@ -108,19 +157,39 @@
           "default": 5,
           "minimum": 1,
           "maximum": 180,
-          "description": "How long to snooze a reminder in minutes."
+          "description": "Duration to snooze reminders in minutes."
         },
         "aquadrop.notificationsEnabled": {
           "type": "boolean",
           "default": true,
-          "description": "Show desktop notifications for AquaDrop reminders."
+          "description": "Show native desktop notifications when water break reminders trigger."
+        },
+        "aquadrop.soundEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play a gentle synthesized water chime and drinking sounds when a hydration reminder is due in open AquaDrop views."
+        },
+        "aquadrop.voiceType": {
+          "type": "string",
+          "enum": [
+            "female",
+            "male",
+            "chime-only"
+          ],
+          "enumDescriptions": [
+            "Friendly & warm girl voice reminder with real drinking sounds",
+            "Encouraging & clear boy voice reminder with real drinking sounds",
+            "Real drinking sounds and water drop chime only (no voice)"
+          ],
+          "default": "female",
+          "description": "Choose hydration alert voice persona and sound."
         },
         "aquadrop.dailyGoal": {
           "type": "number",
           "default": 8,
           "minimum": 1,
           "maximum": 200,
-          "description": "Daily water-break goal used for progress tracking."
+          "description": "Target number of daily water breaks for progress tracking."
         },
         "aquadrop.appearance": {
           "type": "string",
@@ -129,18 +198,13 @@
             "light",
             "dark"
           ],
+          "enumDescriptions": [
+            "Follow active VS Code editor theme",
+            "Light blue clean aesthetic",
+            "Deep dark blue palette"
+          ],
           "default": "system",
-          "description": "Choose how AquaDrop should appear in VS Code."
-        },
-        "aquadrop.enabledByDefault": {
-          "type": "boolean",
-          "default": true,
-          "description": "Legacy compatibility flag for reminder default state."
-        },
-        "aquadrop.trackHydration": {
-          "type": "boolean",
-          "default": true,
-          "description": "Record water-break entries in the extension state."
+          "description": "Visual theme appearance for AquaDrop sidebar and dashboard."
         }
       }
     }
@@ -150,7 +214,8 @@
     "compile": "tsc -p ./",
     "build": "npm run compile",
     "watch": "tsc -watch -p ./",
-    "package": "vsce package"
+    "test": "npm run compile && node --test \"out/test/**/*.test.js\"",
+    "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

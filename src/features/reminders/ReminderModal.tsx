@@ -93,7 +93,7 @@ export default function ReminderModal({
               />
               <img
                 src={mascotUrl}
-                alt="AquaDrop mascot"
+                alt="Drink Water mascot"
                 className="relative h-32 w-32 drop-shadow-[0_16px_28px_rgba(22,119,255,0.32)] transition-transform hover:scale-105 sm:h-36 sm:w-36"
               />
             </div>

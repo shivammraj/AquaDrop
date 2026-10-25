@@ -144,7 +144,7 @@ export class ReminderEngine {
       Notification.permission === 'granted'
     ) {
       try {
-        new Notification('AquaDrop', {
+        new Notification('Drink Water', {
           body: 'Drink water, stay hydrated.',
           icon: '/water-drop-icon.svg'
         })

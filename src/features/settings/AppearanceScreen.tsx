@@ -42,7 +42,7 @@ export default function AppearanceScreen({ theme, onThemeChange }: AppearanceScr
           Appearance
         </h2>
         <p className="text-sm mb-8" style={{ color: 'var(--color-text-secondary)' }}>
-          Choose how AquaDrop looks on your device.
+          Choose how Drink Water looks on your device.
           Switching themes updates instantly without reloading.
         </p>
 

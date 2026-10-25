@@ -130,11 +130,11 @@ export default function App() {
               className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg backdrop-blur-md"
               style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-card)' }}
             >
-              <img src={mascotUrl} alt="AquaDrop logo" className="h-9 w-9" />
+              <img src={mascotUrl} alt="Drink Water logo" className="h-9 w-9" />
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--color-text-secondary)' }}>
-                AquaDrop
+                Drink Water
               </p>
               <h1 className="text-lg font-bold tracking-tight sm:text-xl" style={{ color: 'var(--color-text-primary)' }}>
                 Drink water, stay hydrated.

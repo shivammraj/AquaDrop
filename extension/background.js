@@ -63,7 +63,7 @@ function fireReminderNotification() {
   chrome.notifications.create('aquadrop-reminder', {
     type: 'basic',
     iconUrl: 'icons/icon-128.png',
-    title: 'AquaDrop',
+    title: 'Drink Water',
     message: 'Drink water, stay hydrated. It’s time for a water break! 💙',
     buttons: [
       { title: "I've drunk water" },
@@ -88,7 +88,7 @@ chrome.notifications.onButtonClicked.addListener((notifId, buttonIndex) => {
         chrome.notifications.create({
           type: 'basic',
           iconUrl: 'icons/icon-128.png',
-          title: 'AquaDrop',
+          title: 'Drink Water',
           message: 'Great! Keep it up. 💙'
         })
       })

@@ -11,4 +11,9 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
   },
+  // @ts-ignore
+  test: {
+    include: ['src/**/*.test.{ts,tsx}'],
+    exclude: ['node_modules', 'dist', 'vscode-extension', 'extension']
+  }
 })

@@ -1,7 +1,12 @@
 .vscode/**
 .vscode-test/**
 src/**
-.gitignore
+out/test/**
+test/**
 tsconfig.json
+.gitignore
 **/*.map
 node_modules/**
+*.vsix
+.DS_Store
+Thumbs.db

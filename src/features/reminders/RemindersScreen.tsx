@@ -110,7 +110,7 @@ export default function RemindersScreen({
             </div>
             <div>
               <h3 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>Reminder Interval</h3>
-              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>How often should AquaDrop remind you?</p>
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>How often should Drink Water remind you?</p>
             </div>
           </div>
 

@@ -142,7 +142,7 @@ export default function Dashboard({
               />
               <img
                 src={mascotUrl}
-                alt="AquaDrop mascot"
+                alt="Drink Water mascot"
                 className="relative h-28 w-28 drop-shadow-[0_14px_24px_rgba(22,119,255,0.3)] sm:h-32 sm:w-32"
               />
             </div>
