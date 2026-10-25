@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Bell, Clock, Volume2, GlassWater, Sliders, Play } from 'lucide-react'
-import { playReminderSound, playWaterChime } from '../../services/sound'
+import { playDrinkingSound, playReminderSound, playWaterChime } from '../../services/sound'
 import type { VoiceType } from '../../types/reminder'
 
 type RemindersScreenProps = {
@@ -355,16 +355,27 @@ export default function RemindersScreen({
                     Speaks: &ldquo;Drink water, stay hydrated, and continue your work!&rdquo;
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => playReminderSound(voiceType)}
-                  className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 active:scale-95"
-                  style={{ background: 'var(--color-accent)', color: '#fff' }}
-                  title="Test current sound and voice"
-                >
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                  <span>Play Test</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => playDrinkingSound()}
+                    className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 active:scale-95"
+                    style={{ background: 'var(--color-bg-card-solid)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                    title="Test realistic water drinking sound"
+                  >
+                    <span>🥤 Drinking Sound</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => playReminderSound(voiceType)}
+                    className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold shadow-sm transition hover:scale-105 active:scale-95"
+                    style={{ background: 'var(--color-accent)', color: '#fff' }}
+                    title="Test current sound and voice alert"
+                  >
+                    <Play className="h-3.5 w-3.5 fill-current" />
+                    <span>Play Test</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2">

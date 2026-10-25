@@ -64,6 +64,10 @@ export class AquaDropSidebarProvider implements vscode.WebviewViewProvider {
     return Boolean(this.view && this.view.visible)
   }
 
+  public hasWebview(): boolean {
+    return Boolean(this.view)
+  }
+
   public showReminder(snoozeMinutes: number, sound: boolean = true, voiceType: VoiceType = 'female'): void {
     if (this.view) {
       void this.view.webview.postMessage({

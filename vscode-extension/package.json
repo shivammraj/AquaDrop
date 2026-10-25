@@ -2,7 +2,7 @@
   "name": "aquadrop",
   "displayName": "Drink Water - Hydration Reminder",
   "description": "Drink Water reminders & daily hydration tracker for developers working in Visual Studio Code.",
-  "version": "0.1.1",
+  "version": "1.1.0",
   "publisher": "shivammavi",
   "author": {
     "name": "Shivam Mavi"

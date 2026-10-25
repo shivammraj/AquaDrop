@@ -135,13 +135,95 @@ export function speakReminder(
 }
 
 /**
- * Plays the pleasant water chime, followed by the spoken voice reminder.
+ * Realistic Water Drinking Audio Synthesizer
+ * Generates rhythmic throat gulps with sub-harmonic liquid resonance
+ * and a refreshing water drop splash finish using the Web Audio API.
+ */
+export function playDrinkingSound(): void {
+  if (typeof window === 'undefined') return
+
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!AudioCtx) return
+
+    const ctx = new AudioCtx()
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {})
+    }
+    const now = ctx.currentTime
+
+    const createGulp = (startTime: number, startFreq: number, endFreq: number, vol: number) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(startFreq, startTime)
+      osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + 0.14)
+
+      gain.gain.setValueAtTime(0, startTime)
+      gain.gain.linearRampToValueAtTime(vol, startTime + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.16)
+
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(startTime)
+      osc.stop(startTime + 0.18)
+
+      // Sub-harmonic throat resonance
+      const subOsc = ctx.createOscillator()
+      const subGain = ctx.createGain()
+      subOsc.type = 'sine'
+      subOsc.frequency.setValueAtTime(140, startTime + 0.02)
+      subOsc.frequency.exponentialRampToValueAtTime(70, startTime + 0.13)
+
+      subGain.gain.setValueAtTime(0, startTime + 0.02)
+      subGain.gain.linearRampToValueAtTime(vol * 0.6, startTime + 0.04)
+      subGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15)
+
+      subOsc.connect(subGain)
+      subGain.connect(ctx.destination)
+      subOsc.start(startTime + 0.02)
+      subOsc.stop(startTime + 0.16)
+    }
+
+    // Realistic rhythmic water drinking sequence (glug... glug... gulp)
+    createGulp(now, 420, 220, 0.28)
+    createGulp(now + 0.22, 380, 190, 0.25)
+    createGulp(now + 0.44, 340, 170, 0.22)
+
+    // Refreshing water drop splash finish
+    const dropOsc = ctx.createOscillator()
+    const dropGain = ctx.createGain()
+    dropOsc.type = 'sine'
+    dropOsc.frequency.setValueAtTime(1300, now + 0.64)
+    dropOsc.frequency.exponentialRampToValueAtTime(1850, now + 0.72)
+    dropOsc.frequency.exponentialRampToValueAtTime(1450, now + 0.84)
+
+    dropGain.gain.setValueAtTime(0, now + 0.64)
+    dropGain.gain.linearRampToValueAtTime(0.18, now + 0.66)
+    dropGain.gain.exponentialRampToValueAtTime(0.001, now + 0.95)
+
+    dropOsc.connect(dropGain)
+    dropGain.connect(ctx.destination)
+    dropOsc.start(now + 0.64)
+    dropOsc.stop(now + 0.98)
+  } catch {
+    // Ignore audio context errors
+  }
+}
+
+/**
+ * Plays the realistic drinking sound, followed by the water chime,
+ * and spoken voice reminder if voice is enabled.
  */
 export function playReminderSound(voiceType: 'female' | 'male' | 'chime-only' = 'female'): void {
-  playWaterChime()
+  playDrinkingSound()
+  setTimeout(() => {
+    playWaterChime()
+  }, 400)
+
   if (voiceType !== 'chime-only') {
     setTimeout(() => {
       speakReminder(voiceType)
-    }, 280)
+    }, 950)
   }
 }

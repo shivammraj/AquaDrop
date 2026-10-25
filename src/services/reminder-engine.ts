@@ -1,5 +1,5 @@
 import type { ReminderIntervalUnit, ReminderState, VoiceType } from '../types/reminder'
-import { playCelebrationChime, playReminderSound, playWaterChime } from './sound'
+import { playCelebrationChime, playDrinkingSound, playReminderSound, playWaterChime } from './sound'
 
 export const STORAGE_KEY = 'aquadrop.state.v1'
 
@@ -327,7 +327,10 @@ export class ReminderEngine {
     this.reschedule()
 
     if (this.state.notificationSound) {
-      playCelebrationChime()
+      playDrinkingSound()
+      setTimeout(() => {
+        playCelebrationChime()
+      }, 700)
     }
   }
 

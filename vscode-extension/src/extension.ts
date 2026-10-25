@@ -1,3 +1,4 @@
+import * as cp from 'child_process'
 import * as vscode from 'vscode'
 import { AquaDropStorage } from './storage'
 import { AquaDropScheduler, ReminderDiagnostic } from './scheduler'
@@ -6,6 +7,7 @@ import { AquaDropSidebarProvider } from './ui/sidebarProvider'
 import { AquaDropDashboardPanel } from './ui/dashboardPanel'
 import { registerAquaDropCommands, executeNamedCommand } from './commands'
 import { formatCountdown } from './utils'
+import { VoiceType } from './types'
 
 let activeScheduler: AquaDropScheduler | undefined
 let statusBarItem: vscode.StatusBarItem | undefined
@@ -79,6 +81,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         outputChannel?.appendLine(
           '[Native Notification Fallback] No AquaDrop Webview is currently visible. Showing native VS Code notification.'
         )
+
+        if (state.soundEnabled) {
+          if (sidebarProvider?.hasWebview()) {
+            sidebarProvider.playSound(state.voiceType)
+          } else if (AquaDropDashboardPanel.currentPanel) {
+            AquaDropDashboardPanel.currentPanel.playSound(state.voiceType)
+          } else {
+            playNativeNotificationSound(state.voiceType)
+          }
+        }
 
         const selection = await vscode.window.showInformationMessage(
           'Time for a water break 💧 Stay hydrated!',
@@ -215,5 +227,32 @@ export function deactivate(): void {
   }
   if (AquaDropDashboardPanel.currentPanel) {
     AquaDropDashboardPanel.currentPanel.dispose()
+  }
+}
+
+/**
+ * Plays an audible notification alert natively when no AquaDrop Webview is open.
+ */
+function playNativeNotificationSound(voiceType: VoiceType = 'female'): void {
+  try {
+    const isWindows = process.platform === 'win32'
+    const isMac = process.platform === 'darwin'
+    const isLinux = process.platform === 'linux'
+    const text = 'Time for a water break. Drink water and stay hydrated.'
+
+    if (isWindows) {
+      const psCommand = `Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('${text}'); [console]::beep(800, 180)`
+      cp.spawn('powershell', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', psCommand], {
+        detached: true,
+        stdio: 'ignore'
+      }).unref()
+    } else if (isMac) {
+      const voice = voiceType === 'male' ? 'Alex' : 'Samantha'
+      cp.spawn('say', ['-v', voice, text], { detached: true, stdio: 'ignore' }).unref()
+    } else if (isLinux) {
+      cp.spawn('spd-say', [text], { detached: true, stdio: 'ignore' }).unref()
+    }
+  } catch {
+    // Ignore audio process errors
   }
 }

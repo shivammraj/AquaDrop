@@ -12,8 +12,8 @@ import {
   RotateCcw,
   Sparkles
 } from 'lucide-react'
-import type { ThemeMode } from '../../types/reminder'
-import { playWaterChime } from '../../services/sound'
+import type { ThemeMode, VoiceType } from '../../types/reminder'
+import { playDrinkingSound, playReminderSound, playWaterChime } from '../../services/sound'
 
 type SettingsProps = {
   intervalValue: number
@@ -21,6 +21,7 @@ type SettingsProps = {
   snoozeMinutes: number
   notificationsEnabled: boolean
   notificationSound: boolean
+  voiceType?: VoiceType
   trackingEnabled: boolean
   servingSize: number
   theme: ThemeMode
@@ -28,6 +29,7 @@ type SettingsProps = {
   onSnoozeChange: (value: number) => void
   onNotificationsToggle: (value: boolean) => void
   onNotificationSoundToggle: (value: boolean) => void
+  onVoiceTypeChange?: (value: VoiceType) => void
   onTrackingToggle: (value: boolean) => void
   onServingSizeChange: (value: number) => void
   onThemeChange: (value: ThemeMode) => void
@@ -39,6 +41,7 @@ export default function Settings({
   snoozeMinutes,
   notificationsEnabled,
   notificationSound,
+  voiceType = 'female',
   trackingEnabled,
   servingSize,
   theme,
@@ -46,6 +49,7 @@ export default function Settings({
   onSnoozeChange,
   onNotificationsToggle,
   onNotificationSoundToggle,
+  onVoiceTypeChange,
   onTrackingToggle,
   onServingSizeChange,
   onThemeChange
@@ -229,8 +233,8 @@ export default function Settings({
                       <Volume2 className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-[#102A56]">Play sound</div>
-                      <div className="text-xs font-medium text-[#60738F]">Play a gentle notification sound</div>
+                      <div className="text-sm font-bold text-[#102A56]">Play sound & voice</div>
+                      <div className="text-xs font-medium text-[#60738F]">Play drinking sound, chime, and spoken alert</div>
                     </div>
                   </div>
                   <button
@@ -238,7 +242,7 @@ export default function Settings({
                     onClick={() => {
                       const next = !notificationSound
                       onNotificationSoundToggle(next)
-                      if (next) playWaterChime()
+                      if (next) playReminderSound(voiceType)
                     }}
                     className={`relative h-7 w-12 rounded-full transition-colors ${
                       notificationSound ? 'bg-[#1677FF]' : 'bg-slate-300'
@@ -251,6 +255,71 @@ export default function Settings({
                     />
                   </button>
                 </div>
+
+                {/* Spoken Voice Persona Selector */}
+                {notificationSound && (
+                  <div className="rounded-2xl border border-[#DCE8F7] bg-[#F1F8FF] p-4 animate-fade-in">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-[#60738F]">
+                          Voice Alert & Drinking Sound
+                        </div>
+                        <div className="text-xs text-[#60738F]">
+                          Speaks: &ldquo;Drink water, stay hydrated, and continue your work!&rdquo;
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => playDrinkingSound()}
+                          className="rounded-xl border border-[#DCE8F7] bg-white px-3 py-1.5 text-xs font-bold text-[#102A56] shadow-sm transition hover:bg-slate-50 active:scale-95"
+                          title="Test realistic water drinking sound"
+                        >
+                          🥤 Drinking Sound
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => playReminderSound(voiceType)}
+                          className="rounded-xl bg-[#1677FF] px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#249BFF] active:scale-95"
+                          title="Test full sound and voice reminder"
+                        >
+                          Play Test
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'female', label: '👧 Girl Voice', sub: 'Friendly & warm' },
+                        { id: 'male', label: '👦 Boy Voice', sub: 'Encouraging & clear' },
+                        { id: 'chime-only', label: '🔔 Chime Only', sub: 'Bubble chime only' }
+                      ].map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            if (onVoiceTypeChange) onVoiceTypeChange(opt.id as VoiceType)
+                            playReminderSound(opt.id as VoiceType)
+                          }}
+                          className={`flex flex-col items-start rounded-xl p-3 text-left transition ${
+                            voiceType === opt.id
+                              ? 'bg-[#1677FF] text-white shadow-md'
+                              : 'border border-[#DCE8F7] bg-white text-[#102A56] hover:bg-slate-50'
+                          }`}
+                        >
+                          <span className="text-xs font-bold">{opt.label}</span>
+                          <span
+                            className={`text-[10px] mt-0.5 font-medium ${
+                              voiceType === opt.id ? 'text-white/80' : 'text-[#60738F]'
+                            }`}
+                          >
+                            {opt.sub}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Track daily intake */}
                 <div className="flex items-center justify-between rounded-2xl border border-transparent p-2 transition hover:bg-slate-50">
